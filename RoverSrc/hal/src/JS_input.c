@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -65,7 +66,7 @@ static void JS_executeCMD(void)
     int exit_code = WEXITSTATUS(pclose(pipe));
     if(exit_code != 0)
     {
-        printf("Unable to execute command: %s\n",config_cmd);
+        printf("Unable to execute command: %s\n",CMD_string);
         exit(1);
     }
 
@@ -113,7 +114,7 @@ static void* JS_readerThreadExecute(void* arg)
     for(int i=0; i<NUM_PINS; i++)
     {
         //Create the command string.
-        memset(&CMD_string, "\0", CMD_SIZE*sizeof(char));
+        memset(&CMD_string, '\0', CMD_SIZE);
         snprintf(CMD_string, CMD_SIZE-1, "%s %s gpio",CONFIG_CMD, JS_pins[i]);
         JS_executeCMD();
     }
@@ -121,7 +122,7 @@ static void* JS_readerThreadExecute(void* arg)
     //Set the gpio direction to "in".
     for(int i=0; i<NUM_PINS; i++)
     {
-        memset(&FILE_path, "\0", PATH_SIZE*sizeof(char));
+        memset(&FILE_path, '\0', PATH_SIZE);
         snprintf(FILE_path, PATH_SIZE-1, "%s/direction",JS_gpio[i]);
         JS_writeFile("in");
     }
@@ -156,7 +157,7 @@ static void* JS_readerThreadExecute(void* arg)
         //Check the current value for each direction.
         for(int i=0; i<NUM_PINS; i++)
         {
-            memset(&FILE_path, "\0", PATH_SIZE*sizeof(char));
+            memset(&FILE_path, '\0', PATH_SIZE);
             snprintf(FILE_path, PATH_SIZE-1, value_paths[i]);
             JS_readFile();
 
@@ -164,7 +165,7 @@ static void* JS_readerThreadExecute(void* arg)
             //Value=0 means pressed. 
             if(strcmp(READ_value, "0") == 0)
             {
-                printf("JS pressed %s\n",i);
+                printf("JS pressed %d\n",i);
                 //Send a UDP packet to the Rover.
             }
         }
