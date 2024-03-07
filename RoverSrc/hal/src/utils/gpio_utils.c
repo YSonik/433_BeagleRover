@@ -27,7 +27,7 @@
 
 #define GPIO_CHILD_PATH_FORMAT "%s%s%s"
 
-bool isExported(const char *pin)
+bool isGpioPinExported(const char *pin)
 {
     char gpio_path[33];
     snprintf(gpio_path, 33, GPIO_CHILD_PATH_FORMAT, GPIO_PATH, pin, DIRECTION_SUFFIX);
@@ -47,9 +47,9 @@ bool isExported(const char *pin)
     return true;
 }
 
-void exportGpio(const char *pin)
+void exportGpioPin(const char *pin)
 {
-    if (isExported(pin))
+    if (isGpioPinExported(pin))
     {
         return;
     }
@@ -83,7 +83,7 @@ void setGpioValue(const char *pin, const char *value)
     writeToFile(value_path, value);
 }
 
-void enableGpio(const char *pin)
+void enableGpioPin(const char *pin)
 {
     char enable_path[35];
     snprintf(enable_path, 35, GPIO_CHILD_PATH_FORMAT, GPIO_PATH, pin, ENABLE_SUFFIX);
@@ -91,7 +91,7 @@ void enableGpio(const char *pin)
     writeToFile(enable_path, "1");
 }
 
-void disableGpio(const char *pin)
+void disableGpioPin(const char *pin)
 {
     char enable_path[35];
     snprintf(enable_path, 35, GPIO_CHILD_PATH_FORMAT, GPIO_PATH, pin, ENABLE_SUFFIX);
@@ -110,9 +110,9 @@ int getGpioValue(const char *pin)
     return atoi(buff);
 }
 
-void unexportGpio(const char *pin)
+void unexportGpioPin(const char *pin)
 {
-    if (!isExported(pin))
+    if (!isGpioPinExported(pin))
     {
         return;
     }
@@ -131,14 +131,4 @@ void configurePin(const char *pin, const char *mode)
 void configurePinGpio(const char *pin)
 {
     configurePin(pin, "gpio");
-}
-
-void configurePinPwm(const char *pin)
-{
-    configurePin(pin, "pwm");
-}
-
-void configurePinI2c(const char *pin)
-{
-    configurePin(pin, "i2c");
 }

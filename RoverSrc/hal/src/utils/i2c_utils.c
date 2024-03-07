@@ -6,6 +6,7 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 
+#include "utils/gpio_utils.h"
 #include "utils/i2c_utils.h"
 
 int initI2cBus(char *bus, int address)
@@ -59,4 +60,9 @@ unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr)
         exit(-1);
     }
     return value;
+}
+
+void configurePinI2c(const char *pin)
+{
+    configurePin(pin, "i2c");
 }

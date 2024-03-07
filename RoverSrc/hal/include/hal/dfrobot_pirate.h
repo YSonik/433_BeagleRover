@@ -11,6 +11,6 @@ void DFRobotPirate_MoveBackward(void);
 
 void DFRobotPirate_SetSpeed(int speed);
 
-int DFRobotPirate_Stop(void);
+void DFRobotPirate_Stop(void);
 
 #endif // __DFROBOT_PIRATE_H

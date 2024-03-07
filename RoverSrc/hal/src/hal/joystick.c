@@ -101,9 +101,9 @@ static void setupGpio(struct JoystickPinDetails *joystick_pin, int index)
 {
     configurePinGpio(joystick_pin->pin);
 
-    if (!isExported(joystick_pin->gpio_number))
+    if (!isGpioPinExported(joystick_pin->gpio_number))
     {
-        exportGpio(joystick_pin->gpio_number);
+        exportGpioPin(joystick_pin->gpio_number);
     }
 
     setGpioDirection(joystick_pin->gpio_number, IO_DIRECTION);

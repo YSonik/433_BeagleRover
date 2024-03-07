@@ -111,7 +111,7 @@ void SegmentDisplay_init(void)
     {
         configurePinI2c(segmentDisplay.pins[i]);
 
-        exportGpio(segmentDisplay.gpio_numbers[i]);
+        exportGpioPin(segmentDisplay.gpio_numbers[i]);
         setGpioDirection(segmentDisplay.gpio_numbers[i], "out");
     }
     i2cFileDesc = initI2cBus(I2CDRV_LINUX_BUS1, I2C_DEVICE_ADDRESS);
@@ -150,7 +150,7 @@ void SegmentDisplay_cleanUp(void)
 
     // for (int i = 0; i < DIGIT_COUNT; i++)
     // {
-    //     unexportGpio(segmentDisplay.gpio_numbers[i]);
+    //     unexportGpioPin(segmentDisplay.gpio_numbers[i]);
     // }
 
     isInitialized = false;
