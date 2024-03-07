@@ -1,6 +1,8 @@
 #ifndef _GPIO_UTILS_H_
 #define _GPIO_UTILS_H_
 
+#include <stdbool.h>
+
 bool isGpioPinExported(const char *gpio);
 
 void exportGpioPin(const char *gpio);
