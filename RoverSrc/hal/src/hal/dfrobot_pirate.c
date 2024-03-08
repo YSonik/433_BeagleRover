@@ -12,46 +12,70 @@
 
 #include "hal/dfrobot_pirate.h"
 
-#define MOTOR_COUNT 4
+#define MOTOR_GROUP_COUNT 2
 
 #define LEFT_MOTOR_FORWARD_PIN "p9.15"
+#define LEFT_MOTOR_BACKWARD_GPIO_NUMBER "48"
+
 #define LEFT_MOTOR_BACKWARD_PIN "p9.17"
+#define LEFT_MOTOR_FORWARD_GPIO_NUMBER "5"
 
-#define RIGHT_MOTOR_FORWARD_PIN "p9.18"
-#define RIGHT_MOTOR_BACKWARD_PIN "p9.21"
+#define RIGHT_MOTOR_FORWARD_PIN "p9.16"
+#define RIGHT_MOTOR_BACKWARD_GPIO_NUMBER "51"
 
-#define LEFT_MOTOR_PWM_PIN "p9.14"
-#define RIGHT_MOTOR_PWM_PIN "p9.16"
+#define RIGHT_MOTOR_BACKWARD_PIN "p9.18"
+#define RIGHT_MOTOR_FORWARD_GPIO_NUMBER "4"
 
-#define LEFT_PWM_PATH "/dev/bone/pwm/1/a"
-#define RIGHT_PWM_PATH "/dev/bone/pwm/1/b/"
+#define LEFT_MOTOR_PWM_PIN "p9.21"
+#define LEFT_MOTOR_PWM_GPIO_NUMBER "3"
 
-#define PWM_PERIOD 500000
-#define PWM_DUTY_CYCLE 250000
+#define RIGHT_MOTOR_PWM_PIN "p9.14"
+#define RIGHT_MOTOR_PWM_GPIO_NUMBER "50"
+
+#define LEFT_PWM_PATH "/dev/bone/pwm/0/b"
+#define RIGHT_PWM_PATH "/dev/bone/pwm/1/a"
+
+#define PWM_PERIOD 100000000
 
 #define MOTOR_DIRECTION_FORWARD 0
 #define MOTOR_DIRECTION_BACKWARD 1
+#define MOTOR_DIRECTION_STOP 2
 
-#define GPIO_HIGH "HIGH"
-#define GPIO_LOW "LOW"
+#define GPIO_HIGH "high"
+#define GPIO_LOW "low"
+
+#define LEFT 0
+#define RIGHT 1
 
 static struct MotorPins
 {
     const char *forward_pin;
+    const char *forward_gpio_number;
     const char *backward_pin;
+    const char *backward_gpio_number;
+
     const char *pwm_pin;
+    const char *pwm_gpio_number;
     const char *pwm_path;
 } motor_pins[] = {
     {
         LEFT_MOTOR_FORWARD_PIN,
+        LEFT_MOTOR_FORWARD_GPIO_NUMBER,
         LEFT_MOTOR_BACKWARD_PIN,
+        LEFT_MOTOR_BACKWARD_GPIO_NUMBER,
+
         LEFT_MOTOR_PWM_PIN,
+        LEFT_MOTOR_PWM_GPIO_NUMBER,
         LEFT_PWM_PATH,
     },
     {
         RIGHT_MOTOR_FORWARD_PIN,
+        RIGHT_MOTOR_FORWARD_GPIO_NUMBER,
         RIGHT_MOTOR_BACKWARD_PIN,
+        RIGHT_MOTOR_BACKWARD_GPIO_NUMBER,
+
         RIGHT_MOTOR_PWM_PIN,
+        RIGHT_MOTOR_PWM_GPIO_NUMBER,
         RIGHT_PWM_PATH,
     },
 };
@@ -63,45 +87,60 @@ static int current_speed = 0;
 static void setMotorDirection(int motor, int direction)
 {
 
-    if (motor < 0 || motor >= MOTOR_COUNT)
+    if (motor < 0 || motor >= MOTOR_GROUP_COUNT)
     {
         return;
     }
 
     if (direction == MOTOR_DIRECTION_FORWARD)
     {
-        setGpioDirection(motor_pins[motor].forward_pin, GPIO_HIGH);
-        setGpioDirection(motor_pins[motor].backward_pin, GPIO_LOW);
+        setGpioDirection(motor_pins[motor].forward_gpio_number, GPIO_HIGH);
+        setGpioDirection(motor_pins[motor].backward_gpio_number, GPIO_LOW);
     }
     else if (direction == MOTOR_DIRECTION_BACKWARD)
     {
-        setGpioDirection(motor_pins[motor].forward_pin, GPIO_LOW);
-        setGpioDirection(motor_pins[motor].backward_pin, GPIO_HIGH);
+        setGpioDirection(motor_pins[motor].forward_gpio_number, GPIO_LOW);
+        setGpioDirection(motor_pins[motor].backward_gpio_number, GPIO_HIGH);
     }
     else
     {
-        setGpioDirection(motor_pins[motor].forward_pin, GPIO_LOW);
-        setGpioDirection(motor_pins[motor].backward_pin, GPIO_LOW);
+        setGpioDirection(motor_pins[motor].forward_gpio_number, GPIO_LOW);
+        setGpioDirection(motor_pins[motor].backward_gpio_number, GPIO_LOW);
     }
 }
+
+static void setDirection(int left, int right)
+{
+    setMotorDirection(LEFT, left);
+    setMotorDirection(RIGHT, right);}
 
 void DFRobotPirate_init()
 {
     assert(!is_initialized);
 
-    for (int i = 0; i < MOTOR_COUNT; i++)
+    for (int i = 0; i < MOTOR_GROUP_COUNT; i++)
     {
-        exportGpioPin(motor_pins[i].forward_pin);
-        exportGpioPin(motor_pins[i].backward_pin);
-        exportGpioPin(motor_pins[i].pwm_pin);
+        exportGpioPin(motor_pins[i].forward_gpio_number);
+        exportGpioPin(motor_pins[i].backward_gpio_number);
+        exportGpioPin(motor_pins[i].pwm_gpio_number);
 
         configurePinGpio(motor_pins[i].forward_pin);
         configurePinGpio(motor_pins[i].backward_pin);
         configurePinPwm(motor_pins[i].pwm_pin);
 
-        setGpioDirection(motor_pins[i].forward_pin, GPIO_LOW);
-        setGpioDirection(motor_pins[i].backward_pin, GPIO_LOW);
+        setGpioDirection(motor_pins[i].forward_gpio_number, GPIO_LOW);
+        setGpioDirection(motor_pins[i].backward_gpio_number, GPIO_LOW);
+
+        setGpioActiveLow(motor_pins[i].forward_gpio_number, 0);
+        setGpioActiveLow(motor_pins[i].backward_gpio_number, 0);
+        setGpioActiveLow(motor_pins[i].pwm_gpio_number, 0);
+
+        setPwmDutyCycle(motor_pins[i].pwm_path, 0);
+        setPwmPeriod(motor_pins[i].pwm_path, PWM_PERIOD);
+
+        enablePwm(motor_pins[i].pwm_path);
     }
+
 
     is_initialized = true;
 }
@@ -110,12 +149,12 @@ void DFRobotPirate_cleanUp()
 {
     assert(is_initialized);
 
-    for (int i = 0; i < MOTOR_COUNT; i++)
-    {
-        unexportGpioPin(motor_pins[i].forward_pin);
-        unexportGpioPin(motor_pins[i].backward_pin);
-        unexportGpioPin(motor_pins[i].pwm_pin);
-    }
+    // for (int i = 0; i < MOTOR_GROUP_COUNT; i++)
+    // {
+    //     unexportGpioPin(motor_pins[i].forward_gpio_number);
+    //     unexportGpioPin(motor_pins[i].backward_gpio_number);
+    //     unexportGpioPin(motor_pins[i].pwm_gpio_number);
+    // }
 
     is_initialized = false;
 }
@@ -124,32 +163,28 @@ void DFRobotPirate_TurnLeft()
 {
     assert(is_initialized);
 
-    setMotorDirection(0, MOTOR_DIRECTION_BACKWARD);
-    setMotorDirection(1, MOTOR_DIRECTION_FORWARD);
+    setDirection(MOTOR_DIRECTION_STOP, MOTOR_DIRECTION_FORWARD);
 }
 
 void DFRobotPirate_TurnRight()
 {
     assert(is_initialized);
 
-    setMotorDirection(0, MOTOR_DIRECTION_FORWARD);
-    setMotorDirection(1, MOTOR_DIRECTION_BACKWARD);
+    setDirection(MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_STOP);
 }
 
 void DFRobotPirate_MoveForward()
 {
     assert(is_initialized);
 
-    setMotorDirection(0, MOTOR_DIRECTION_FORWARD);
-    setMotorDirection(1, MOTOR_DIRECTION_FORWARD);
+    setDirection(MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_FORWARD);
 }
 
 void DFRobotPirate_MoveBackward()
 {
     assert(is_initialized);
 
-    setMotorDirection(0, MOTOR_DIRECTION_BACKWARD);
-    setMotorDirection(1, MOTOR_DIRECTION_BACKWARD);
+    setDirection(MOTOR_DIRECTION_BACKWARD, MOTOR_DIRECTION_BACKWARD);
 }
 
 void DFRobotPirate_SetSpeed(int speed)
@@ -162,20 +197,13 @@ void DFRobotPirate_SetSpeed(int speed)
         return;
     }
 
-    setPwmPeriod(motor_pins[0].pwm_path, PWM_PERIOD);
-    setPwmPeriod(motor_pins[1].pwm_path, PWM_PERIOD);
-
-    setPwmDutyCycle(motor_pins[0].pwm_path, PWM_DUTY_CYCLE * speed / 100);
-    setPwmDutyCycle(motor_pins[1].pwm_path, PWM_DUTY_CYCLE * speed / 100);
+    setPwmDutyCycle(motor_pins[0].pwm_path, (PWM_PERIOD * speed) / 100);
+    setPwmDutyCycle(motor_pins[1].pwm_path, (PWM_PERIOD * speed) / 100);
 }
 
 void DFRobotPirate_Stop()
 {
     assert(is_initialized);
 
-    for (int i = 0; i < MOTOR_COUNT; i++)
-    {
-        setGpioDirection(motor_pins[i].forward_pin, GPIO_LOW);
-        setGpioDirection(motor_pins[i].backward_pin, GPIO_LOW);
-    }
+    setDirection(MOTOR_DIRECTION_STOP, MOTOR_DIRECTION_STOP);
 }

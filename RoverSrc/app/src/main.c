@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <time.h>
 
+
 #include "utils/time_utils.h"
 #include "hal/dfrobot_pirate.h"
 
@@ -12,22 +13,22 @@ int main()
 
     DFRobotPirate_init();
 
-    DFRobotPirate_SetSpeed(50);
+    DFRobotPirate_SetSpeed(20);
     DFRobotPirate_MoveForward();
 
-    sleepForMs(2000);
+    sleepForMs(5000);
 
     DFRobotPirate_MoveBackward();
 
-    sleepForMs(2000);
+    sleepForMs(5000);
 
     DFRobotPirate_TurnLeft();
 
-    sleepForMs(2000);
+    sleepForMs(5000);
 
     DFRobotPirate_TurnRight();
 
-    sleepForMs(2000);
+    sleepForMs(5000);
 
     DFRobotPirate_Stop();
 

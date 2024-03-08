@@ -10,10 +10,10 @@ add_compile_options(-fdiagnostics-color)
 
 # Enable address sanitizer
 # (Comment this out to make your code faster)
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
+# add_compile_options(-fsanitize=address)
+# add_link_options(-fsanitize=address)
 
 # What folders to build
-add_subdirectory(hal)  
+add_subdirectory(hal)
 add_subdirectory(app)
 

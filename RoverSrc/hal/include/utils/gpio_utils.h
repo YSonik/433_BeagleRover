@@ -17,6 +17,8 @@ int getGpioValue(const char *gpio);
 void enableGpioPin(const char *gpio);
 void disableGpioPin(const char *gpio);
 
+void setGpioActiveLow(const char *pin, int active_low);
+
 void configurePin(const char *pin, const char *mode);
 void configurePinGpio(const char *pin);
 

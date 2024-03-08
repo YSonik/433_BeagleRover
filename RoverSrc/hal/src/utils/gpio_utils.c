@@ -23,6 +23,8 @@
 #define DIRECTION_SUFFIX "/direction"
 #define EDGE_SUFFIX "/edge"
 #define VALUE_SUFFIX "/value"
+#define ACTIVE_LOW_SUFFIX "/active_low"
+
 #define ENABLE_SUFFIX "/enable"
 
 #define GPIO_CHILD_PATH_FORMAT "%s%s%s"
@@ -59,6 +61,16 @@ void exportGpioPin(const char *pin)
     sleepForMs(300);
 }
 
+void unexportGpioPin(const char *pin)
+{
+    if (!isGpioPinExported(pin))
+    {
+        return;
+    }
+
+    writeToFile(GPIO_UNEXPORT_PATH, pin);
+}
+
 void setGpioDirection(const char *pin, const char *direction)
 {
     char direction_path[33];
@@ -83,6 +95,17 @@ void setGpioValue(const char *pin, const char *value)
     writeToFile(value_path, value);
 }
 
+int getGpioValue(const char *pin)
+{
+    char value_path[35];
+    snprintf(value_path, 35, GPIO_CHILD_PATH_FORMAT, GPIO_PATH, pin, VALUE_SUFFIX);
+
+    char buff[10];
+    readLineFromFile(value_path, buff, 10);
+
+    return atoi(buff);
+}
+
 void enableGpioPin(const char *pin)
 {
     char enable_path[35];
@@ -99,25 +122,15 @@ void disableGpioPin(const char *pin)
     writeToFile(enable_path, "0");
 }
 
-int getGpioValue(const char *pin)
+void setGpioActiveLow(const char *pin, int active_low)
 {
-    char value_path[35];
-    snprintf(value_path, 35, GPIO_CHILD_PATH_FORMAT, GPIO_PATH, pin, VALUE_SUFFIX);
+    char active_low_path[35];
+    snprintf(active_low_path, 35, GPIO_CHILD_PATH_FORMAT, GPIO_PATH, pin, ACTIVE_LOW_SUFFIX);
 
-    char buff[10];
-    readLineFromFile(value_path, buff, 10);
+    char active_low_str[2];
+    snprintf(active_low_str, 2, "%d", active_low);
 
-    return atoi(buff);
-}
-
-void unexportGpioPin(const char *pin)
-{
-    if (!isGpioPinExported(pin))
-    {
-        return;
-    }
-
-    writeToFile(GPIO_UNEXPORT_PATH, pin);
+    writeToFile(active_low_path, active_low_str);
 }
 
 void configurePin(const char *pin, const char *mode)

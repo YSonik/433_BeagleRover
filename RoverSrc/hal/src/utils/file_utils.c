@@ -14,6 +14,7 @@
 
 #include "utils/file_utils.h"
 
+
 void writeToFile(const char *fileName, const char *value)
 {
     // Use fopen() to open the file for write access.
@@ -26,6 +27,10 @@ void writeToFile(const char *fileName, const char *value)
     // Write to data to the file using fprintf():
     fprintf(pFile, "%s", value);
 
+#ifdef DEBUG
+    printf("Wrote to file: %s\n", fileName);
+    printf("Value: %s\n\n", value);
+#endif
 
     // Close the file using fclose():
     fclose(pFile);
@@ -36,6 +41,11 @@ int readLineFromFile(char *fileName, char *buff, size_t maxLength)
     FILE *file = fopen(fileName, "r");
     int bytes_read = getline(&buff, &maxLength, file);
     fclose(file);
+
+#ifdef DEBUG
+    printf("Read from file: %s\n", fileName);
+#endif
+
     return bytes_read;
 }
 
@@ -62,4 +72,8 @@ void runCommand(char *command)
         printf(" command: %s\n", command);
         printf(" exit code: %d\n", exitCode);
     }
+
+#ifdef DEBUG
+    printf("Ran command: %s\n", command);
+#endif
 }
