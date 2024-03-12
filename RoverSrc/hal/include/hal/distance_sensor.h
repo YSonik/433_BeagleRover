@@ -4,6 +4,6 @@
 void DistanceSensor_init(void);
 void DistanceSensor_cleanUp(void);
 
-int DistanceSensor_getDistance(void);
+float DistanceSensor_getDistance(void);
 
 #endif // __DISTANCE_SENSOR_H
