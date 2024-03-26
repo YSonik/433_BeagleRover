@@ -43,7 +43,7 @@ void Server_init()
 
     Socket_init(SERVER_PORT, NULL, NULL);
 
-    pthread_create(&server_thread, NULL, (void *)Server_thread, NULL);
+    pthread_create(&server_thread, NULL, Server_thread, NULL);
 
     is_initialized = true;
 }

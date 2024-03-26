@@ -5,8 +5,8 @@ project(Beagle_Rover VERSION 1.0 DESCRIPTION "The final project." LANGUAGES C)
 
 # Compiler options (inherited by sub-folders)
 set(CMAKE_C_STANDARD 11)
-add_compile_options(-pthread)
-# add_compile_options(-Wall -Werror -Wpedantic -Wextra -pthread)
+
+add_compile_options(-Wall -Werror -Wpedantic -Wextra -pthread)
 add_compile_options(-fdiagnostics-color)
 
 # Enable address sanitizer

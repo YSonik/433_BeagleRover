@@ -20,8 +20,6 @@ static pthread_t client_thread = 0;
 
 static void *Client_thread()
 {
-    char messageRX[MSG_MAX_LEN];
-
     while (!Shutdown_isRequested())
     {
         direction direction = Joystick_read();

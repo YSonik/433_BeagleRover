@@ -9,6 +9,7 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 
+#include "hal/gyroscope.h"
 
 // Error Calculation Params
 #define RAPID_STABILIZE_EXPONENTIAL_FACTOR 0.9
@@ -32,26 +33,37 @@ typedef struct
 static int gyroFileDescriptor;
 static volatile int shutdown = 0;
 static Vec3f error = {0.0f, 0.0f, 0.0f};
-static Vec3f gyroRaw = {0.0f, 0.0f, 0.0f};
+// static Vec3f gyroRaw = {0.0f, 0.0f, 0.0f};
 static float yaw = 0.0f;
 
-// Function declarations
-void gyro_init();
-void gyro_cleanup();
-void readGyroData(int file, Vec3f *gyroRaw);
-void calculateAngle(Vec3f *gyroRaw, Vec3f *error, float *yaw);
-void avg_error(int file, Vec3f *error);
+// static void calculateAngle(Vec3f *gyroRaw, Vec3f *error, float *yaw)
+// {
+//     // Calculate the time elapsed since the last call
+//     static struct timespec lastTime = {0, 0};
+//     struct timespec currentTime;
+//     clock_gettime(CLOCK_MONOTONIC, &currentTime);
 
-int main()
+//     double elapsed = (currentTime.tv_sec - lastTime.tv_sec) +
+//                      (currentTime.tv_nsec - lastTime.tv_nsec) / 1000000000.0;
+//     lastTime = currentTime;
+
+//     float delta = (gyroRaw->z - error->z) * elapsed;
+//     float actual = (fabs(delta) > 0.0016) ? delta : 0.0;
+
+//     *yaw += actual;
+// }
+
+static void avg_error(Vec3f *error)
 {
-    gyro_init();
-    // Your application logic here
-
-    gyro_cleanup();
-    return 0;
+    // Simplified version of error calculation
+    // This should be replaced with actual data reading and processing
+    error->x = INITIAL_ERROR_X;
+    error->y = INITIAL_ERROR_Y;
+    error->z = INITIAL_ERROR_Z;
+    // This is a placeholder to illustrate where error calculation logic should be implemented
 }
 
-void gyro_init()
+void Gyroscope_init()
 {
     // Example: Open the I2C device
     gyroFileDescriptor = open("/dev/i2c-1", O_RDWR);
@@ -71,48 +83,22 @@ void gyro_init()
     // For simplicity, it's not detailed here
 
     // Calculate initial error
-    avg_error(gyroFileDescriptor, &error);
+    avg_error(&error);
 
     // Reset yaw
     yaw = 0.0f;
 }
 
-void gyro_cleanup()
+void Gyroscope_cleanup()
 {
     close(gyroFileDescriptor);
     printf("Exiting Gyro\n");
 }
 
-void readGyroData(int file, Vec3f *gyroRaw)
-{
+// void readGyroData(int file, Vec3f *gyroRaw)
+// {
     // This function should read data from the gyroscope and store it in gyroRaw
     // This is highly dependent on the specific gyroscope and its I2C protocol
     // This example does not implement the actual I2C read operation
-}
+// }
 
-void calculateAngle(Vec3f *gyroRaw, Vec3f *error, float *yaw)
-{
-    // Calculate the time elapsed since the last call
-    static struct timespec lastTime = {0, 0};
-    struct timespec currentTime;
-    clock_gettime(CLOCK_MONOTONIC, &currentTime);
-
-    double elapsed = (currentTime.tv_sec - lastTime.tv_sec) +
-                     (currentTime.tv_nsec - lastTime.tv_nsec) / 1000000000.0;
-    lastTime = currentTime;
-
-    float delta = (gyroRaw->z - error->z) * elapsed;
-    float actual = (fabs(delta) > 0.0016) ? delta : 0.0;
-
-    *yaw += actual;
-}
-
-void avg_error(int file, Vec3f *error)
-{
-    // Simplified version of error calculation
-    // This should be replaced with actual data reading and processing
-    error->x = INITIAL_ERROR_X;
-    error->y = INITIAL_ERROR_Y;
-    error->z = INITIAL_ERROR_Z;
-    // This is a placeholder to illustrate where error calculation logic should be implemented
-}
