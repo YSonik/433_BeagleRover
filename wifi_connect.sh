@@ -4,8 +4,8 @@
 echo temppwd | sudo -Sv
 
 #(2) Write the network credentials to the wpa_supplicant.conf file.
-W_NAME='ssid="<wifi_name>"'
-W_PASS='psk="<wifi_password>"'
+W_NAME='ssid="The Thing"'
+W_PASS='psk="BananaFritters#1"'
 SUPPLICANT="ctrl_interface=/var/run/wpa_supplicant \nctrl_interface_group=0 \nupdate_config=1"
 echo -e "$SUPPLICANT\nnetwork={\n$W_NAME\n$W_PASS\n}" | sudo tee /etc/wpa_supplicant/wpa_supplicant.conf >/dev/null
 

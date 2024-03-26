@@ -13,7 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define SERVER_IP "192.168.1.37" //Pass in from command line
+#define SERVER_IP "192.168.234.3" //Pass in from command line
 #define SERVER_PORT 12345 //Pass in from command line
 #define MESSAGE_SIZE 1024
 
