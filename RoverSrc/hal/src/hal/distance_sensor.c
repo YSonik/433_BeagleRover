@@ -73,7 +73,7 @@ float DistanceSensor_getDistance()
     }
 
     float pulseDuration = (endTime - startTime) * 0.001;
-    printf("pusle duration %f\n", pulseDuration);
+    //printf("pusle duration %f\n", pulseDuration);
     float distance = (pulseDuration * 34300) / 2.0;
 
     return distance;
