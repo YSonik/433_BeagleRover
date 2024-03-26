@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "utils/time_utils.h"
 #include "hal/joystick.h"
+#include "hal/car_client.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -12,8 +13,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define SERVER_IP "192.168.1.37"
-#define SERVER_PORT 12345
+#define SERVER_IP "192.168.1.37" //Pass in from command line
+#define SERVER_PORT 12345 //Pass in from command line
 #define MESSAGE_SIZE 1024
 
 //UDP socket
@@ -21,7 +22,7 @@ static int sockFD;
 static struct sockaddr_in client_addr;
 static char send_buffer[MESSAGE_SIZE];
 
-//UDP server thread
+//UDP client thread
 static pthread_t clientThreadID;
 static bool stopThread = false;
 static bool stopApplication = false;
@@ -66,7 +67,7 @@ static void UDP_createSocket(void)
 static void UDP_readJS(void)
 {
     direction next_move = Joystick_read();
-    char* command_name = Joystick_getDirectionString(next_move);
+    const char* command_name = Joystick_getDirectionString(next_move);
     snprintf(send_buffer,MESSAGE_SIZE, "%s",command_name); 
     return;
 }

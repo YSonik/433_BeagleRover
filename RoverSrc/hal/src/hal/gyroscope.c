@@ -6,6 +6,9 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <time.h>
+#include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+
 
 // Error Calculation Params
 #define RAPID_STABILIZE_EXPONENTIAL_FACTOR 0.9

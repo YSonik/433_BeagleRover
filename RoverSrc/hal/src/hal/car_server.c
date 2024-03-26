@@ -5,6 +5,7 @@
 #include "hal/car_server.h"
 #include "utils/time_utils.h"
 #include "hal/dfrobot_pirate.h"
+#include "hal/car_server.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -13,8 +14,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define SERVER_IP "192.168.1.37"
-#define SERVER_PORT 12345
+#define SERVER_IP "192.168.1.37" //Pass in from command line
+#define SERVER_PORT 12345 //Pass in from command line
 #define MESSAGE_SIZE 1024
 
 //UDP socket
