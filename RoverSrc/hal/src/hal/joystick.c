@@ -35,13 +35,13 @@ char *edge_directions[] = {
 #define JOYSTICK_UP_PIN "p8.14"
 
 #define JOYSTICK_DOWN_GPIO_NUMBER "46"
-#define JOYSTICK_DOWN_PIN "p8.15"
+#define JOYSTICK_DOWN_PIN "p8.16"
 
 #define JOYSTICK_LEFT_GPIO_NUMBER "65"
-#define JOYSTICK_LEFT_PIN "p8.16"
+#define JOYSTICK_LEFT_PIN "p8.18"
 
 #define JOYSTICK_RIGHT_GPIO_NUMBER "47"
-#define JOYSTICK_RIGHT_PIN "p8.17"
+#define JOYSTICK_RIGHT_PIN "p8.15"
 static struct JoystickPinDetails
 {
     const char *gpio_number;
