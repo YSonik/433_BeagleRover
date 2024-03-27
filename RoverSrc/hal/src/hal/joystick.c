@@ -42,6 +42,10 @@ char *edge_directions[] = {
 
 #define JOYSTICK_RIGHT_GPIO_NUMBER "47"
 #define JOYSTICK_RIGHT_PIN "p8.15"
+
+#define JOYSTICK_PRESSED_GPIO_NUMBER "27"
+#define JOYSTICK_PRESSED_PIN "p8.17"
+
 static struct JoystickPinDetails
 {
     const char *gpio_number;
@@ -54,13 +58,15 @@ static struct JoystickPinDetails
     {JOYSTICK_DOWN_GPIO_NUMBER, JOYSTICK_DOWN_PIN, "Down", JOYSTICK_DOWN, 0},
     {JOYSTICK_LEFT_GPIO_NUMBER, JOYSTICK_LEFT_PIN, "Left", JOYSTICK_LEFT, 0},
     {JOYSTICK_RIGHT_GPIO_NUMBER, JOYSTICK_RIGHT_PIN, "Right", JOYSTICK_RIGHT, 0},
+    {JOYSTICK_PRESSED_GPIO_NUMBER, JOYSTICK_PRESSED_PIN, "Pressed", JOYSTICK_PRESSED, 0},
+    {NULL, NULL, "None", JOYSTICK_NONE, 0},
 };
 
 static bool is_initialized = false;
 
 static int epoll_fd;
 
-#define MAX_EVENTS 4
+#define MAX_EVENTS 5
 static struct epoll_event events[MAX_EVENTS];
 
 static int create_epoll_fd(const char *pin)
@@ -129,7 +135,7 @@ void Joystick_init()
         exit(-1);
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < MAX_EVENTS; i++)
     {
         struct JoystickPinDetails *joystick_pin = &joystick_pins[i];
         setupGpio(joystick_pin, i);
@@ -154,7 +160,7 @@ direction Joystick_waitForInput(int timeout_ms, edge e)
         exit(-1);
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < MAX_EVENTS; i++)
     {
         struct JoystickPinDetails *joystick_pin = &joystick_pins[i];
 
@@ -172,7 +178,7 @@ direction Joystick_waitForInput(int timeout_ms, edge e)
 
     for (int i = 0; i < epoll_wait_result; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < MAX_EVENTS; j++)
         {
             const struct JoystickPinDetails *joystick_pin = &joystick_pins[j];
             if (events[i].data.fd == joystick_pin->fd)
@@ -196,11 +202,11 @@ direction Joystick_read()
 
     direction joystick_direction = JOYSTICK_NONE;
 
-    for (int j = 0; j < 4; j++)
+    for (int j = 0; j < MAX_EVENTS; j++)
     {
         const struct JoystickPinDetails *joystick_pin = &joystick_pins[j];
 
-        int value = getGpioValue(joystick_pin->pin);
+        int value = getGpioValue(joystick_pin->gpio_number);
 
         if (value == 0)
         {
@@ -211,7 +217,7 @@ direction Joystick_read()
     return joystick_direction;
 }
 
-void Joystick_cleanUp()
+void Joystick_cleanup()
 {
     if (!is_initialized)
     {
@@ -219,7 +225,7 @@ void Joystick_cleanUp()
         exit(-1);
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < MAX_EVENTS; i++)
     {
         struct JoystickPinDetails *joystick_pin = &joystick_pins[i];
         close_fd(joystick_pin->fd);

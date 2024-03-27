@@ -3,58 +3,66 @@
 #include <stdbool.h>
 #include <time.h>
 #include <string.h>
+#include <signal.h>
 
 #include "utils/time_utils.h"
 #include "hal/dfrobot_pirate.h"
-#include "hal/car_server.h"
-#include "hal/car_client.h"
 #include "hal/joystick.h"
 
-static bool isServer = true;
+#include "socket.h"
+#include "shutdown.h"
+#include "server.h"
+#include "client.h"
 
+static bool killRequested = false;
 
-int main(int argc, char* argv[])
+static void signalHandler(int signal)
+{
+    printf("Received signal %d\n", signal);
+
+    if (killRequested)
+    {
+        printf("Force killing\n");
+        exit(1);
+    }
+
+    killRequested = true;
+    Shutdown_request();
+}
+
+int main(int argc, char *argv[])
 {
     printf("Rover project compiles correctly\n");
 
-    if(strstr(argv[1], "false") != NULL)
+    signal(SIGINT, signalHandler);
+
+    bool isServer = true;
+
+    if (argc > 1)
     {
-        isServer = false;
+        printf("Argument 1: %s\n", argv[1]);
+        isServer = (strncmp(argv[1], "client", 6) != 0);
     }
 
-    //Start all modules
-    DFRobotPirate_init();
-    Joystick_init();
+    printf("Running as %s\n", isServer ? "server" : "client");
 
-    if(isServer)
+    Shutdown_init();
+
+    if (isServer)
     {
-        UDP_server_start();
-    }
-    else
-    {
-        UDP_client_start();
-    }
+        DFRobotPirate_init();
+        Server_init();
 
-
-
-    sleepForMs(5000);
-
-
-
-
-
-    if(isServer)
-    {
-        UDP_server_stop();
+        DFRobotPirate_cleanUp();
+        Server_cleanup();
     }
     else
     {
-        UDP_client_stop();
+        Client_init(argv[2], SERVER_PORT);
+        Client_cleanup();
     }
 
-
-    Joystick_cleanUp();
-    DFRobotPirate_cleanUp();
+    Shutdown_cleanup();
 
     // DFRobotPirate_init();
 
