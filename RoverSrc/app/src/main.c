@@ -13,6 +13,7 @@
 #include "shutdown.h"
 #include "server.h"
 #include "client.h"
+#include "handshake.h"
 
 static bool killRequested = false;
 
@@ -48,22 +49,26 @@ int main(int argc, char *argv[])
 
     Shutdown_init();
 
-    if (isServer)
-    {
-        DFRobotPirate_init();
-        Server_init();
 
-        DFRobotPirate_cleanUp();
-        Server_cleanup();
-    }
-    else
-    {
-        Client_init(argv[2], SERVER_PORT);
-        Client_cleanup();
-    }
+    Handshake_init(NULL, 0);
+     
+    
+    // if (isServer)
+    // {
+    //     DFRobotPirate_init();
+    //     Server_init();
+
+    //     DFRobotPirate_cleanUp();
+    //     Server_cleanup();
+    // }
+    // else
+    // {
+    //     Client_init(argv[2], SERVER_PORT);
+    //     Client_cleanup();
+    // }
 
     Shutdown_cleanup();
-
+    return 0;
     // DFRobotPirate_init();
 
     // DFRobotPirate_SetSpeed(20);
@@ -87,5 +92,5 @@ int main(int argc, char *argv[])
 
     // DFRobotPirate_cleanUp();
 
-    return 0;
+    //return 0;
 }

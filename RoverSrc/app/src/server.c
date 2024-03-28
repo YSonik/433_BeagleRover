@@ -41,7 +41,7 @@ void Server_init()
         return;
     }
 
-    Socket_init(SERVER_PORT, NULL, NULL);
+    Socket_init(SERVER_PORT, NULL, NULL, false);
 
     pthread_create(&server_thread, NULL, Server_thread, NULL);
 

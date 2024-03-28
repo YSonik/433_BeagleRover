@@ -33,7 +33,7 @@ static void *Client_thread()
         const char *directionName = Joystick_getDirectionString(direction);
         printf("Sending direction: %s\n", directionName);
 
-        Socket_send(directionStr);
+        Socket_send(directionStr, false);
 
         sleepForMs(10);
     }
@@ -48,7 +48,7 @@ void Client_init(const char *r_ip, const char *r_port)
         return;
     }
 
-    Socket_init(CLIENT_PORT, r_ip, r_port);
+    Socket_init(CLIENT_PORT, r_ip, r_port, false);
     Joystick_init();
 
     pthread_create(&client_thread, NULL, Client_thread, NULL);
