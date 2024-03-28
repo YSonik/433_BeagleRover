@@ -15,6 +15,8 @@
 #include "shutdown.h"
 #include "client.h"
 
+#define DIRECTION_LEN 2
+
 static bool is_initialized = false;
 static pthread_t client_thread = 0;
 
@@ -24,17 +26,16 @@ static void *Client_thread()
     {
         direction direction = Joystick_read();
 
-        printf("Direction: %d\n", direction);
-
-        char directionStr[MSG_MAX_LEN];
-        sprintf(directionStr, "%d", direction);
+        char directionStr[DIRECTION_LEN];
+        memset(directionStr, '\0', DIRECTION_LEN);
+        snprintf(directionStr, 2, "%d", direction);
 
         const char *directionName = Joystick_getDirectionString(direction);
         printf("Sending direction: %s\n", directionName);
 
         Socket_send(directionStr);
 
-        sleepForMs(1000);
+        sleepForMs(10);
     }
 
     return NULL;
