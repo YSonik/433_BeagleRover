@@ -4,6 +4,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <net/if.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
 #include "handshake.h"
 #include "socket.h"
 
@@ -62,10 +65,43 @@ static void serverListen()
             printf("Server could not receive from client\n");
             exit(1);
         }
-
-        printf("Server received the following message: %s\n", receiveBuffer);
+        else
+        {
+            printf("Server received the following message: %s\n", receiveBuffer);
+            break;
+        }
     }
 
+    return;
+}
+
+static void getIP(int local_socket, char* ip_buffer)
+{
+    // https://stackoverflow.com/questions/2283494/get-ip-address-of-an-interface-on-linux
+
+    struct ifreq ifr;
+
+    /* I want to get an IPv4 IP address */
+    ifr.ifr_addr.sa_family = AF_INET;
+
+    /* I want IP address attached to "eth0" */
+    strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ - 1);
+
+    ioctl(local_socket, SIOCGIFADDR, &ifr);
+
+    sprintf(ip_buffer, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+}
+
+static void serverRespond()
+{
+    //Send the server's ip address.
+    memset(sendBuffer, '\0', MESSAGE_LEN);
+    getIP(server_socket, sendBuffer);
+    if (sendto(server_socket, sendBuffer, strlen(sendBuffer), 0, (struct sockaddr*)&client_address, sizeof(client_address)) == -1) {
+        printf("Server could not send to client\n");
+        exit(1);
+    }
+  
     return;
 }
 
@@ -109,6 +145,29 @@ static void clientSend()
     return;
 }
 
+static void clientReceive()
+{
+    while(true)
+    {
+        memset(receiveBuffer, '\0', MESSAGE_LEN);  
+        socklen_t server_len = sizeof(server_address);
+
+        //Receive discovery message from client.
+        ssize_t bytesRx = recvfrom(client_socket, (char *)receiveBuffer, MESSAGE_LEN, 0, (struct sockaddr *)&server_address, &server_len);
+        
+        if (bytesRx == -1) {
+            printf("Client could not receive from server\n");
+            exit(1);
+        }
+        else
+        {
+            printf("Client received the following message: %s\n", receiveBuffer);
+            break;
+        }
+    }
+
+    return;
+}
 
 void Handshake_init(char* ip_buffer, bool isServer)
 {
@@ -120,17 +179,23 @@ void Handshake_init(char* ip_buffer, bool isServer)
         //Listen for discovery message. 
         serverListen();
 
+        //Respond with IP address.
+        serverRespond();
+
         //Close the server socket.
         close(server_socket);
     }
     else
     {
-        //Create the server socket.
+        //Create the client socket.
         createClientSocket();
 
-        //Listen for discovery message. 
+        //Send the discovery message. 
         clientSend();
 
+        //Listen for the server's response.
+        clientReceive();
+        
         //Close the client socket
         close(client_socket);
     }
