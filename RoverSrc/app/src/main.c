@@ -15,7 +15,9 @@
 #include "client.h"
 #include "handshake.h"
 
+#define IP_LEN 50
 static bool killRequested = false;
+static char server_ip[IP_LEN];
 
 static void signalHandler(int signal)
 {
@@ -49,18 +51,20 @@ int main(int argc, char *argv[])
 
     Shutdown_init();
 
-    Handshake_init(NULL, isServer);
+    memset(server_ip, '\0', IP_LEN);
+    Handshake_init(server_ip, isServer);
+    printf("Server IP address: %s\n",server_ip);
 
-    if (isServer)
-    {
-        Server_init();
-        Server_cleanup();
-    }
-    else
-    {
-        Client_init(argv[2], SERVER_PORT);
-        Client_cleanup();
-    }
+    // if (isServer)
+    // {
+    //     Server_init();
+    //     Server_cleanup();
+    // }
+    // else
+    // {
+    //     Client_init(argv[2], SERVER_PORT);
+    //     Client_cleanup();
+    // }
 
     Shutdown_cleanup();
     return 0;

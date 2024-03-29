@@ -67,7 +67,7 @@ static void serverListen()
         }
         else
         {
-            printf("Server received the following message: %s\n", receiveBuffer);
+            //printf("Server received the following message: %s\n", receiveBuffer);
             break;
         }
     }
@@ -140,7 +140,7 @@ static void clientSend()
         exit(1);
     }
     
-    printf("Client broadcasted the following discovery message: %s\n",sendBuffer);
+    //printf("Client broadcasted the following discovery message: %s\n",sendBuffer);
 
     return;
 }
@@ -161,7 +161,7 @@ static void clientReceive()
         }
         else
         {
-            printf("Client received the following message: %s\n", receiveBuffer);
+            //printf("Client received the following message: %s\n", receiveBuffer);
             break;
         }
     }
@@ -199,6 +199,9 @@ void Handshake_init(char* ip_buffer, bool isServer)
         //Close the client socket
         close(client_socket);
     }
-    
+
+
+    //Write the Server's IP address to the passed buffer.
+    snprintf(ip_buffer, MESSAGE_LEN, "%s", receiveBuffer);
     return;
 }
