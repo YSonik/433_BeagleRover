@@ -17,7 +17,6 @@
 
 #define IP_LEN 50
 static bool killRequested = false;
-static char server_ip[IP_LEN];
 
 static void signalHandler(int signal)
 {
@@ -51,10 +50,6 @@ int main(int argc, char *argv[])
 
     Shutdown_init();
 
-    //Client discovers the server.
-    memset(server_ip, '\0', IP_LEN);
-    Handshake_init(server_ip, isServer);
-
     if (isServer)
     {
         Server_init();
@@ -62,7 +57,12 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("Server IP address: %s\n",server_ip);
+        char server_ip[IP_LEN];
+        // Client discovers the server.
+        memset(server_ip, '\0', IP_LEN);
+        Handshake_init(server_ip);
+
+        printf("Server IP address: %s\n", server_ip);
         Client_init(server_ip, SERVER_PORT);
         Client_cleanup();
     }
