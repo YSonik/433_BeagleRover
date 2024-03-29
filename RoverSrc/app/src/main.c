@@ -51,20 +51,21 @@ int main(int argc, char *argv[])
 
     Shutdown_init();
 
+    //Client discovers the server.
     memset(server_ip, '\0', IP_LEN);
     Handshake_init(server_ip, isServer);
-    printf("Server IP address: %s\n",server_ip);
 
-    // if (isServer)
-    // {
-    //     Server_init();
-    //     Server_cleanup();
-    // }
-    // else
-    // {
-    //     Client_init(argv[2], SERVER_PORT);
-    //     Client_cleanup();
-    // }
+    if (isServer)
+    {
+        Server_init();
+        Server_cleanup();
+    }
+    else
+    {
+        printf("Server IP address: %s\n",server_ip);
+        Client_init(server_ip, SERVER_PORT);
+        Client_cleanup();
+    }
 
     Shutdown_cleanup();
     return 0;
