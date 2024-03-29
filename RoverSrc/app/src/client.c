@@ -57,7 +57,7 @@ void Client_init(const char *r_ip, const char *r_port)
         return;
     }
 
-    Socket_init(CLIENT_PORT, r_ip, r_port, false);
+    Socket_init(CLIENT_PORT, r_ip, r_port);
     Joystick_init();
     Potentiometer_init();
 

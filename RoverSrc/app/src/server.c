@@ -162,7 +162,7 @@ void Server_init()
         return;
     }
 
-    Socket_init(SERVER_PORT, NULL, NULL, false);
+    Socket_init(SERVER_PORT, NULL, NULL);
 
     DFRobotPirate_init();
 

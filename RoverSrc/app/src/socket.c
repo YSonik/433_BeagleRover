@@ -19,11 +19,6 @@ static struct addrinfo *remote;
 static struct sockaddr client_addr;
 static socklen_t client_addr_len = sizeof(client_addr);
 
-static const char *broadcast_port = NULL;
-static bool is_broadcast = false;
-
-char local_ip[INET_ADDRSTRLEN];
-
 static void Socket_init_send_socket(const char *address, const char *port)
 {
     int status;
@@ -88,26 +83,11 @@ static void Socket_init_local_socket(const char *port)
         break;
     }
 
-    if (is_broadcast)
-    {
-        // Enable Broadcasting
-        int enableBroadcast = 1;
-        if (setsockopt(local_socket, SOL_SOCKET, SO_BROADCAST, &enableBroadcast, sizeof(enableBroadcast)) == -1)
-        {
-            perror("Error enabling socket broadcast\n");
-            shutdown(local_socket, SHUT_RDWR);
-            exit(1);
-        }
-    }
-
     freeaddrinfo(res); // free the linked list
 }
 
-void Socket_init(const char *l_port, const char *r_ip, const char *r_port, bool isBroadcast)
+void Socket_init(const char *l_port, const char *r_ip, const char *r_port)
 {
-    broadcast_port = l_port;
-    is_broadcast = isBroadcast;
-
     Socket_init_local_socket(l_port);
 
     if (r_ip != NULL && r_port != NULL)
@@ -126,34 +106,14 @@ void Socket_close()
 void Socket_send(char *message)
 {
     int bytesSx = 0;
-    if (is_broadcast)
-    {
-        struct sockaddr_in b_addr;
+    bytesSx = sendto(
+        remote_socket,
+        message,
+        strlen(message),
+        0,
+        remote->ai_addr,
+        remote->ai_addrlen);
 
-        memset(&b_addr, 0, sizeof(b_addr));
-        b_addr.sin_family = AF_INET;
-        b_addr.sin_port = htons(atoi(broadcast_port));
-        b_addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
-
-        printf("Sending broadcast:%s\n", message);
-        bytesSx = sendto(
-            local_socket,
-            message,
-            strlen(message),
-            0,
-            (struct sockaddr *)&b_addr,
-            sizeof(b_addr));
-    }
-    else
-    {
-        bytesSx = sendto(
-            remote_socket,
-            message,
-            strlen(message),
-            0,
-            remote->ai_addr,
-            remote->ai_addrlen);
-    }
     printf("%d\n", bytesSx);
 
     if (bytesSx == -1)
