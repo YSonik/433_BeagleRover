@@ -113,6 +113,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
+      // Example JavaScript to update sensor readings. Replace with your actual data fetching and updating logic.
+      $(document).ready(function () {
+        // Simulated data fetch and update for gyroscope
+        setInterval(function () {
+          // Fetch gyroscope data here
+          $("#gyroscope-reading").text(
+            "Gyroscope Data: " + Math.random().toFixed(2)
+          ); // Example random data
+        }, 1000); // Update every second
+
+        // Simulated data fetch and update for ultrasonic sensor
+        setInterval(function () {
+          // Fetch ultrasonic sensor data here
+          $("#ultrasonic-sensor-reading").text(
+            "Ultrasonic Sensor Distance: " + Math.random().toFixed(2) + " cm"
+          ); // Example random data
+        }, 1000); // Update every second
+      });
+    </script>
+    <script>
       // Example JavaScript for remote control functionality. Replace with your actual command sending logic.
       function moveCar(direction) {
         console.log("Moving car " + direction);
