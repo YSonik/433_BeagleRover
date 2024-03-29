@@ -28,8 +28,6 @@ static void *Server_thread()
 
         Socket_receive(messageRX);
 
-        printf("Received message: %s\n", messageRX);
-
         /**
          * Supported commands
          * speed=[speed]    Set Speed (0 <= Speed <= 100)
@@ -51,6 +49,7 @@ static void *Server_thread()
         {
             if (messageRX[5] == '=')
             {
+                printf("Received message: %s", messageRX);
                 int speed = atoi(&messageRX[6]);
                 DFRobotPirate_setSpeed(speed);
             }
@@ -68,18 +67,22 @@ static void *Server_thread()
                 switch (messageRX[10])
                 {
                 case '0':
+                    printf("Received message: %s", messageRX);
                     DFRobotPirate_moveForward();
                     break;
 
                 case '1':
+                    printf("Received message: %s", messageRX);
                     DFRobotPirate_moveBackward();
                     break;
 
                 case '2':
+                    printf("Received message: %s", messageRX);
                     DFRobotPirate_turnLeft();
                     break;
 
                 case '3':
+                    printf("Received message: %s", messageRX);
                     DFRobotPirate_turnRight();
                     break;
 
@@ -109,7 +112,8 @@ static void *Server_thread()
             sprintf(response, "Gyro Response\n");
             // sprintf(response, "%d,%d,%d\n", DFRobotPirate_getGyroX(), DFRobotPirate_getGyroY(), DFRobotPirate_getGyroZ());
             Socket_reply_to_last(response);
-        }else if (strncmp(messageRX, "distance", 8) == 0)
+        }
+        else if (strncmp(messageRX, "distance", 8) == 0)
         {
             char response[MSG_MAX_LEN];
 
