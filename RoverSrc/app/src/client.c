@@ -16,6 +16,8 @@
 #include "shutdown.h"
 #include "client.h"
 
+#define DIRECTION_LEN 2
+
 static bool is_initialized = false;
 static pthread_t client_thread = 0;
 
@@ -42,7 +44,7 @@ static void *Client_thread()
             Socket_send(speedStr);
         }
 
-        sleepForMs(1000);
+        sleepForMs(10);
     }
 
     return NULL;
@@ -55,7 +57,7 @@ void Client_init(const char *r_ip, const char *r_port)
         return;
     }
 
-    Socket_init(CLIENT_PORT, r_ip, r_port);
+    Socket_init(CLIENT_PORT, r_ip, r_port, false);
     Joystick_init();
     Potentiometer_init();
 

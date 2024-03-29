@@ -13,6 +13,7 @@
 #include "shutdown.h"
 #include "server.h"
 #include "client.h"
+#include "handshake.h"
 
 static bool killRequested = false;
 
@@ -60,6 +61,5 @@ int main(int argc, char *argv[])
     }
 
     Shutdown_cleanup();
-
     return 0;
 }
