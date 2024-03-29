@@ -42,7 +42,7 @@ void Handshake_init(char* ip_buffer, bool isServer)
         memset(&servaddr, 0, sizeof(servaddr));
         servaddr.sin_family = AF_INET;
         servaddr.sin_addr.s_addr = htonl(INADDR_ANY); // Listen on all network interfaces
-        servaddr.sin_port = htons(SERVER_PORT);
+        servaddr.sin_port = htons(atoi(SERVER_PORT));
 
         // Bind socket
         if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) == -1) {
@@ -57,7 +57,7 @@ void Handshake_init(char* ip_buffer, bool isServer)
             exit(EXIT_FAILURE);
         }
 
-        printf("UDP server listening on port %d...\n", SERVER_PORT);
+        printf("UDP server listening on port %d...\n", atoi(SERVER_PORT));
 
         while (1) {
             socklen_t len = sizeof(cliaddr);
@@ -113,7 +113,7 @@ void Handshake_init(char* ip_buffer, bool isServer)
         // Set up the destination address for broadcasting
         memset(&broadcast_addr, 0, sizeof(broadcast_addr));
         broadcast_addr.sin_family = AF_INET;
-        broadcast_addr.sin_port = htons(SERVER_PORT);
+        broadcast_addr.sin_port = htons(atoi(SERVER_PORT));
         broadcast_addr.sin_addr.s_addr = inet_addr("255.255.255.255"); // Broadcasting to all devices in the network
 
         // Send the data
