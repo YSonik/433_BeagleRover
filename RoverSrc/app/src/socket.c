@@ -114,7 +114,6 @@ void Socket_send(char *message)
         remote->ai_addr,
         remote->ai_addrlen);
 
-    printf("%d\n", bytesSx);
 
     if (bytesSx == -1)
     {
