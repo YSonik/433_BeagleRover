@@ -46,7 +46,7 @@ static void Socket_init_send_socket(const char *address, const char *port)
     }
 }
 
-static void Socket_init_local_socket(const char *port, bool isBroadcast)
+static void Socket_init_local_socket(const char *port, bool isBroadcast, const char* broadcastPort)
 {
     int status;
     struct addrinfo hints;
@@ -72,18 +72,6 @@ static void Socket_init_local_socket(const char *port, bool isBroadcast)
             continue;
         }
 
-        if(isBroadcast)
-        {
-            //Enable Broadcasting
-            int enableBroadcast = 1;
-            if(setsockopt(local_socket, SOL_SOCKET, SO_BROADCAST, &enableBroadcast, sizeof(enableBroadcast)) == -1)
-            {
-                perror("Error enabling socket broadcast\n");
-                shutdown(local_socket, SHUT_RDWR);
-                exit(1);
-            }
-        }
-
         if (bind(local_socket, p->ai_addr, p->ai_addrlen) == -1)
         {
             shutdown(local_socket, SHUT_RDWR);
@@ -95,9 +83,20 @@ static void Socket_init_local_socket(const char *port, bool isBroadcast)
 
     if(isBroadcast)
     {
+        //Enable Broadcasting
+        int enableBroadcast = 1;
+        if(setsockopt(local_socket, SOL_SOCKET, SO_BROADCAST, &enableBroadcast, sizeof(enableBroadcast)) == -1)
+        {
+            perror("Error enabling socket broadcast\n");
+            shutdown(local_socket, SHUT_RDWR);
+            exit(1);
+        }
+    }
+    if(isBroadcast)
+    {
         memset(&B_addr, 0, sizeof(B_addr));
         B_addr.sin_family = AF_INET;
-        B_addr.sin_port = htons(atoi(port));
+        B_addr.sin_port = htons(atoi(broadcastPort));
         B_addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
     }
 
@@ -106,7 +105,7 @@ static void Socket_init_local_socket(const char *port, bool isBroadcast)
 
 void Socket_init(const char *l_port, const char *r_ip, const char *r_port, bool isBroadcast)
 {
-    Socket_init_local_socket(l_port, isBroadcast);
+    Socket_init_local_socket(l_port, isBroadcast, r_port);
 
     if (r_ip != NULL && r_port != NULL)
     {
@@ -145,7 +144,9 @@ void Socket_send(char *message, bool isBroadcast)
         remote->ai_addr,
         remote->ai_addrlen);
     }
+    printf("%d\n",bytesSx);
 
+    
     if (bytesSx == -1)
     {
         perror("sendto");

@@ -9,7 +9,7 @@
 void Socket_init(const char *l_port,const char *r_ip,const char *r_port, bool isBroadcast);
 void Socket_close();
 
-void Socket_send(char *messageRX);
+void Socket_send(char *messageRX, bool isBroadcast);
 void Socket_reply_to_last(char *messageRX);
 void Socket_receive(char *messageRX);
 
