@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 
+#include "hal/potentiometer.h"
 #include "hal/joystick.h"
 #include "utils/time_utils.h"
 
@@ -20,20 +21,28 @@
 static bool is_initialized = false;
 static pthread_t client_thread = 0;
 
+static int current_speed = 0;
+
 static void *Client_thread()
 {
     while (!Shutdown_isRequested())
     {
         direction direction = Joystick_read();
 
-        char directionStr[DIRECTION_LEN];
-        memset(directionStr, '\0', DIRECTION_LEN);
-        snprintf(directionStr, 2, "%d", direction);
+        char directionStr[13];
+        sprintf(directionStr, "direction=%d\n", direction);
+        Socket_send(directionStr);
 
-        const char *directionName = Joystick_getDirectionString(direction);
-        printf("Sending direction: %s\n", directionName);
+        int speed = (int)Potentiometer_readPercentage();
 
-        Socket_send(directionStr, false);
+        if (speed != current_speed)
+        {
+            current_speed = speed;
+
+            char speedStr[10];
+            sprintf(speedStr, "speed=%d\n", speed);
+            Socket_send(speedStr);
+        }
 
         sleepForMs(10);
     }
@@ -50,6 +59,7 @@ void Client_init(const char *r_ip, const char *r_port)
 
     Socket_init(CLIENT_PORT, r_ip, r_port, false);
     Joystick_init();
+    Potentiometer_init();
 
     pthread_create(&client_thread, NULL, Client_thread, NULL);
 
@@ -67,6 +77,7 @@ void Client_cleanup()
 
     Socket_close();
     Joystick_cleanup();
+    Potentiometer_cleanup();
 
     is_initialized = false;
 }

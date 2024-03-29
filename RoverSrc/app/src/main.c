@@ -49,48 +49,17 @@ int main(int argc, char *argv[])
 
     Shutdown_init();
 
-
-    Handshake_init(NULL, 0);
-     
-    
-    // if (isServer)
-    // {
-    //     DFRobotPirate_init();
-    //     Server_init();
-
-    //     DFRobotPirate_cleanUp();
-    //     Server_cleanup();
-    // }
-    // else
-    // {
-    //     Client_init(argv[2], SERVER_PORT);
-    //     Client_cleanup();
-    // }
+    if (isServer)
+    {
+        Server_init();
+        Server_cleanup();
+    }
+    else
+    {
+        Client_init(argv[2], SERVER_PORT);
+        Client_cleanup();
+    }
 
     Shutdown_cleanup();
     return 0;
-    // DFRobotPirate_init();
-
-    // DFRobotPirate_SetSpeed(20);
-    // DFRobotPirate_MoveForward();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_MoveBackward();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_TurnLeft();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_TurnRight();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_Stop();
-
-    // DFRobotPirate_cleanUp();
-
-    //return 0;
 }

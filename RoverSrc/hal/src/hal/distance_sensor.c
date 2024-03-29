@@ -24,7 +24,7 @@
 
 static bool is_initialized = false;
 
-void DistanceSensor_init() 
+void DistanceSensor_init()
 {
     printf("initializing distance sensor\n");
     assert(!is_initialized);
@@ -42,7 +42,7 @@ void DistanceSensor_init()
 
 }
 
-void DistanceSensor_cleanUp() 
+void DistanceSensor_cleanup()
 {
     assert(is_initialized);
 
