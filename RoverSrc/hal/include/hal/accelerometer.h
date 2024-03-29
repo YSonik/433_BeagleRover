@@ -2,7 +2,7 @@
 #define __ACCELEROMETER_H
 
 void Accelerometer_init(void);
-void Accelerometer_cleanUp(void);
+void Accelerometer_cleanup(void);
 
 int Accelerometer_getX(void);
 int Accelerometer_getY(void);

@@ -51,7 +51,7 @@ double Potentiometer_readPercentage(void)
     return percentage;
 }
 
-void Potentiometer_cleanUp(void)
+void Potentiometer_cleanup(void)
 {
     assert(isInitialized);
     isInitialized = false;

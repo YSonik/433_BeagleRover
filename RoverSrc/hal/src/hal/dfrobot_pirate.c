@@ -141,11 +141,10 @@ void DFRobotPirate_init()
         enablePwm(motor_pins[i].pwm_path);
     }
 
-
     is_initialized = true;
 }
 
-void DFRobotPirate_cleanUp()
+void DFRobotPirate_cleanup()
 {
     assert(is_initialized);
 
@@ -159,35 +158,42 @@ void DFRobotPirate_cleanUp()
     is_initialized = false;
 }
 
-void DFRobotPirate_TurnLeft()
+void DFRobotPirate_turnLeft()
 {
     assert(is_initialized);
 
     setDirection(MOTOR_DIRECTION_STOP, MOTOR_DIRECTION_FORWARD);
 }
 
-void DFRobotPirate_TurnRight()
+void DFRobotPirate_turnRight()
 {
     assert(is_initialized);
 
     setDirection(MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_STOP);
 }
 
-void DFRobotPirate_MoveForward()
+void DFRobotPirate_moveForward()
 {
     assert(is_initialized);
 
     setDirection(MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_FORWARD);
 }
 
-void DFRobotPirate_MoveBackward()
+void DFRobotPirate_moveBackward()
 {
     assert(is_initialized);
 
     setDirection(MOTOR_DIRECTION_BACKWARD, MOTOR_DIRECTION_BACKWARD);
 }
 
-void DFRobotPirate_SetSpeed(int speed)
+int DFRobotPirate_getSpeed()
+{
+    assert(is_initialized);
+
+    return current_speed;
+}
+
+void DFRobotPirate_setSpeed(int speed)
 {
     assert(is_initialized);
     assert(speed >= 0 && speed <= 100);
@@ -201,7 +207,7 @@ void DFRobotPirate_SetSpeed(int speed)
     setPwmDutyCycle(motor_pins[1].pwm_path, (PWM_PERIOD * speed) / 100);
 }
 
-void DFRobotPirate_Stop()
+void DFRobotPirate_stop()
 {
     assert(is_initialized);
 
