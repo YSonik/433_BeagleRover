@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
 
     Shutdown_init();
 
+    Handshake_init(NULL, isServer);
+
     if (isServer)
     {
         Server_init();

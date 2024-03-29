@@ -1,3 +1,7 @@
 {
-    "cmake.sourceDirectory": "/home/ssingh/cmpt433/work/433_BeagleRover/RoverSrc"
+    "cmake.sourceDirectory": "/home/yogesh/Documents/433_BeagleRover/RoverSrc",
+    "files.associations": {
+        "in.h": "c",
+        "unistd.h": "c"
+    }
 }
