@@ -21,5 +21,5 @@ target_link_libraries(run_rover LINK_PRIVATE Threads::Threads)
 add_custom_command(TARGET run_rover POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy
      "$<TARGET_FILE:run_rover>"
-     "$(HOME)/Documents/CMPT_433/public/rover_bin/run_rover"
+     "$(HOME)/cmpt433/public/myApps"
   COMMENT "Copying ARM executable to public NFS directory")
