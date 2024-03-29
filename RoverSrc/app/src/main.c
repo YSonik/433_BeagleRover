@@ -50,10 +50,7 @@ int main(int argc, char *argv[])
 
     if (isServer)
     {
-        DFRobotPirate_init();
         Server_init();
-
-        DFRobotPirate_cleanUp();
         Server_cleanup();
     }
     else
@@ -63,29 +60,6 @@ int main(int argc, char *argv[])
     }
 
     Shutdown_cleanup();
-
-    // DFRobotPirate_init();
-
-    // DFRobotPirate_SetSpeed(20);
-    // DFRobotPirate_MoveForward();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_MoveBackward();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_TurnLeft();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_TurnRight();
-
-    // sleepForMs(5000);
-
-    // DFRobotPirate_Stop();
-
-    // DFRobotPirate_cleanUp();
 
     return 0;
 }
