@@ -12,7 +12,7 @@ void Handshake_init(char* ip_buffer, int ip_len)
 
     for(int i=0; i<10; i++)
     {
-        Socket_send(broadcast_message, true);
+        Socket_send(broadcast_message);
         memset(response, '\0', 100);
         Socket_receive(response);
         printf("%s\n",response);
