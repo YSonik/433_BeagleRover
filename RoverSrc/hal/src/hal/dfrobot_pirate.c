@@ -162,14 +162,14 @@ void DFRobotPirate_turnLeft()
 {
     assert(is_initialized);
 
-    setDirection(MOTOR_DIRECTION_STOP, MOTOR_DIRECTION_FORWARD);
+    setDirection(MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_BACKWARD);
 }
 
 void DFRobotPirate_turnRight()
 {
     assert(is_initialized);
 
-    setDirection(MOTOR_DIRECTION_FORWARD, MOTOR_DIRECTION_STOP);
+    setDirection(MOTOR_DIRECTION_BACKWARD, MOTOR_DIRECTION_FORWARD);
 }
 
 void DFRobotPirate_moveForward()
