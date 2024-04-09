@@ -61,14 +61,14 @@ int Gyroscope_getAngle(int16_t *zGy)
         return 0;
     }
 
-    // int16_t gyro_x = (data[0] << 8) | data[1];
+     int16_t gyro_x = (data[0] << 8) | data[1];
     // int16_t gyro_y = (data[2] << 8) | data[3];
-    int16_t gyro_z = (data[4] << 8) | data[5];
+    //int16_t gyro_z = (data[4] << 8) | data[5];
 
-    *zGy = gyro_z;
+    *zGy = gyro_x;
 
     // Very simplified - Just returning the z-axis rotation as "angle" for demonstration
-    return gyro_z;
+    return gyro_x;
 }
 
 int Gyroscope_getDirection(void)
