@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../../hal/include/hal/accelerometer.h"
+#include "../../hal/include/hal/gyroscope.h"
 #include <time.h>
 
 
@@ -10,29 +12,34 @@
 int main()
 {
     printf("Rover project compiles correctly\n");
+    Gyroscope_init();
 
-    DFRobotPirate_init();
+    int16_t xAcclValue;
 
-    DFRobotPirate_SetSpeed(20);
-    DFRobotPirate_MoveForward();
+    while (1)
+    {
+        Gyroscope_getAngle(&xAcclValue);
+        float xAcclValue_float = xAcclValue / 1000.0f;
+        printf("xGyroValue: %.3f\n", xAcclValue_float);
+    }
+    
 
-    sleepForMs(5000);
+    // Accel_init();
 
-    DFRobotPirate_MoveBackward();
+    // int16_t xAcclValue, yAcclValue;
 
-    sleepForMs(5000);
+    // getAccelerometerValues(&xAcclValue, &yAcclValue);
 
-    DFRobotPirate_TurnLeft();
+    // while (1)
+    // {
+    //     getAccelerometerValues(&xAcclValue, &yAcclValue);
+    //     float xAcclValue_float = xAcclValue / 1000.0f;
+    // float yAcclValue_float = yAcclValue / 1000.0f;
 
-    sleepForMs(5000);
-
-    DFRobotPirate_TurnRight();
-
-    sleepForMs(5000);
-
-    DFRobotPirate_Stop();
-
-    DFRobotPirate_cleanUp();
+    // // Print accelerometer values
+    // printf("xAcclValue: %.3f\n", xAcclValue_float);
+    // printf("yAcclValue: %.3f\n", yAcclValue_float);
+    // }
 
     return 0;
 }
