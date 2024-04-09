@@ -1,0 +1,9 @@
+{
+	"name": "udp-server",
+	"version": "0.0.1",
+	"description": "Relay UDP messages to node.js.",
+	"dependencies": {
+		"mime": "~1.2.7",
+		"socket.io": "~0.9.6"
+	}
+}

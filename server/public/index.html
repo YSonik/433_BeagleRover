@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Motor Mechanics Project</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        padding-top: 20px;
+        background-color: #f0f0f0; /* Light grey background */
+      }
+      .sensor-reading {
+        font-size: 1.5em;
+        color: #333; /* Darker text for better readability */
+        margin-bottom: 20px;
+      }
+      .control-button {
+        width: 100px;
+        height: 100px;
+        font-size: 1.2em;
+        margin: 10px;
+        border-radius: 50%; /* Makes the buttons circular */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow */
+      }
+      #remote-control {
+        text-align: center;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1>Welcome to Mini Motor Mechanics!</h1>
+          <p>
+            We are a group dedicated to exploring the intricacies of automotive
+            technology through hands-on projects. Our latest creation is a car
+            powered by a BeagleBone that features capabilities like gyroscopic
+            balancing, WiFi control, and obstacle detection using an ultrasonic
+            sensor.
+          </p>
+        </div>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="col">
+          <h2>Project Video</h2>
+          <p>Check out our car in action!</p>
+          <!-- <video controls width="100%">
+            <source src="video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video> -->
+        </div>
+      </div>
+      <hr />
+      <div id="remote-control">
+        <h2>Remote Control</h2>
+        <div>
+          <!-- Control buttons -->
+          <button
+            class="btn btn-primary control-button"
+            onclick="moveCar('forward')"
+          >
+            Forward
+          </button>
+        </div>
+        <div>
+          <button
+            class="btn btn-secondary control-button"
+            onclick="moveCar('left')"
+          >
+            Left
+          </button>
+          <button
+            class="btn btn-secondary control-button"
+            onclick="moveCar('right')"
+          >
+            Right
+          </button>
+        </div>
+        <div>
+          <button
+            class="btn btn-primary control-button"
+            onclick="moveCar('backward')"
+          >
+            Backward
+          </button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <h2>Gyroscope Reading</h2>
+          <p class="sensor-reading" id="gyroscope-reading">Loading...</p>
+        </div>
+        <div class="col-md-6">
+          <h2>Ultrasonic Sensor Reading</h2>
+          <p class="sensor-reading" id="ultrasonic-sensor-reading">
+            Loading...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+      // Example JavaScript to update sensor readings. Replace with your actual data fetching and updating logic.
+      $(document).ready(function () {
+        // Simulated data fetch and update for gyroscope
+        setInterval(function () {
+          // Fetch gyroscope data here
+          $("#gyroscope-reading").text(
+            "Gyroscope Data: " + Math.random().toFixed(2)
+          ); // Example random data
+        }, 1000); // Update every second
+
+        // Simulated data fetch and update for ultrasonic sensor
+        setInterval(function () {
+          // Fetch ultrasonic sensor data here
+          $("#ultrasonic-sensor-reading").text(
+            "Ultrasonic Sensor Distance: " + Math.random().toFixed(2) + " cm"
+          ); // Example random data
+        }, 1000); // Update every second
+      });
+    </script>
+    <script>
+      // Example JavaScript for remote control functionality. Replace with your actual command sending logic.
+      function moveCar(direction) {
+        console.log("Moving car " + direction);
+        // Insert code here to send command to your car. This could be a WebSocket message, an HTTP request, etc.
+      }
+
+      $(document).ready(function () {
+        // Your existing simulated data fetch and update code for sensors
+      });
+    </script>
+  </body>
+</html>
