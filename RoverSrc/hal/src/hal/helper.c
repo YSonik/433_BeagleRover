@@ -8,7 +8,7 @@
 #include <linux/i2c-dev.h>
 #include <time.h>
 
-#include "helper.h"
+#include "../../hal/include/hal/helper.h"
 
 // helper function to run commands for our c program
 void runCommand(char* command)

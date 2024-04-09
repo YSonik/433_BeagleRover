@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 
-#include "helper.h"
+#include "../../hal/include/hal/helper.h"
 
 #define I2CDRV_LINUX_BUS1 "/dev/i2c-1"
 
@@ -67,10 +67,10 @@ void getAccelerometerValues(int16_t *xAccl, int16_t *yAccl)
    }
 
    *xAccl = (accelValues[0] << 8) | (accelValues[1]) ;
-   *xAccl = *xAccl >> 4;  
+   //*xAccl = *xAccl >> 4;  
 
    *yAccl = (accelValues[2] << 8) | (accelValues[3]) ;
-   *yAccl = *yAccl >> 4;
+   //*yAccl = *yAccl >> 4;
 
    zAccl = (accelValues[4] << 8) | (accelValues[5]);
    zAccl = zAccl >> 4;
