@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../../hal/include/hal/accelerometer.h"
-#include "../../hal/include/hal/gyroscope.h"
 #include <time.h>
 #include <string.h>
 #include <signal.h>
 
 #include "utils/time_utils.h"
+
 #include "hal/dfrobot_pirate.h"
 #include "hal/joystick.h"
 
