@@ -1,104 +1,87 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdint.h>
-#include <math.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
-#include <time.h>
-#include <linux/i2c.h>
 #include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+#include <math.h>
 
-#include "hal/gyroscope.h"
+#define GYRO_DEVICE_ADDR 0x68
+#define PWR_MGMT_1 0x6B
+#define GYRO_CONFIG 0x1B
+#define GYRO_XOUT_H 0x43
 
-// Error Calculation Params
-#define RAPID_STABILIZE_EXPONENTIAL_FACTOR 0.9
-#define INITIAL_ERROR_X 100
-#define INITIAL_ERROR_Y 100
-#define INITIAL_ERROR_Z 100
-#define AVG_ERROR_CALC_LIMIT 1000
-#define STABILIZE_CONDITION 0.1
-#define GYRO_DEVICE_ADDR 0x68 // Example I2C address, replace with actual
-#define PWR_MGMT_1 0x6B       // Example register, replace with actual
+static int fd = -1;
+static float yaw = 0.0;
 
-// Vector3 replacement for C
-typedef struct
+void Gyroscope_init(void)
 {
-    float x;
-    float y;
-    float z;
-} Vec3f;
-
-// Global Variables
-static int gyroFileDescriptor;
-static volatile int shutdown = 0;
-static Vec3f error = {0.0f, 0.0f, 0.0f};
-// static Vec3f gyroRaw = {0.0f, 0.0f, 0.0f};
-static float yaw = 0.0f;
-
-// static void calculateAngle(Vec3f *gyroRaw, Vec3f *error, float *yaw)
-// {
-//     // Calculate the time elapsed since the last call
-//     static struct timespec lastTime = {0, 0};
-//     struct timespec currentTime;
-//     clock_gettime(CLOCK_MONOTONIC, &currentTime);
-
-//     double elapsed = (currentTime.tv_sec - lastTime.tv_sec) +
-//                      (currentTime.tv_nsec - lastTime.tv_nsec) / 1000000000.0;
-//     lastTime = currentTime;
-
-//     float delta = (gyroRaw->z - error->z) * elapsed;
-//     float actual = (fabs(delta) > 0.0016) ? delta : 0.0;
-
-//     *yaw += actual;
-// }
-
-static void avg_error(Vec3f *error)
-{
-    // Simplified version of error calculation
-    // This should be replaced with actual data reading and processing
-    error->x = INITIAL_ERROR_X;
-    error->y = INITIAL_ERROR_Y;
-    error->z = INITIAL_ERROR_Z;
-    // This is a placeholder to illustrate where error calculation logic should be implemented
-}
-
-void Gyroscope_init()
-{
-    // Example: Open the I2C device
-    gyroFileDescriptor = open("/dev/i2c-1", O_RDWR);
-    if (gyroFileDescriptor < 0)
+    char *bus = "/dev/i2c-2";
+    if ((fd = open(bus, O_RDWR)) < 0)
     {
-        perror("Failed to open the i2c bus");
+        perror("Failed to open the bus");
         exit(1);
     }
-    if (ioctl(gyroFileDescriptor, I2C_SLAVE, GYRO_DEVICE_ADDR) < 0)
+    if (ioctl(fd, I2C_SLAVE, GYRO_DEVICE_ADDR) < 0)
     {
         perror("Failed to acquire bus access and/or talk to slave.");
         exit(1);
     }
 
-    // Example: Initializing the gyroscope device
-    // This should include setting up the device configuration as needed
-    // For simplicity, it's not detailed here
+    char config[2] = {0};
+    config[0] = PWR_MGMT_1;
+    config[1] = 0x00; // Wake up the sensor
+    write(fd, config, 2);
 
-    // Calculate initial error
-    avg_error(&error);
+    config[0] = GYRO_CONFIG;
+    config[1] = 0x18; // ±2000 deg/sec
+    write(fd, config, 2);
 
-    // Reset yaw
-    yaw = 0.0f;
+    yaw = 0.0; // Reset yaw
 }
 
-void Gyroscope_cleanup()
+void Gyroscope_cleanUp(void)
 {
-    close(gyroFileDescriptor);
-    printf("Exiting Gyro\n");
+    if (fd != -1)
+    {
+        close(fd);
+        fd = -1;
+    }
 }
 
-// void readGyroData(int file, Vec3f *gyroRaw)
-// {
-    // This function should read data from the gyroscope and store it in gyroRaw
-    // This is highly dependent on the specific gyroscope and its I2C protocol
-    // This example does not implement the actual I2C read operation
-// }
+int Gyroscope_getAngle(void)
+{
+    // Simplified version of getting gyro data and calculating angle
+    char reg[1] = {GYRO_XOUT_H};
+    char data[6];
+    if (write(fd, reg, 1) != 1 || read(fd, data, 6) != 6)
+    {
+        perror("Failed to read from the device");
+        return 0;
+    }
 
+    int16_t gyro_x = (data[0] << 8) | data[1];
+    int16_t gyro_y = (data[2] << 8) | data[3];
+    int16_t gyro_z = (data[4] << 8) | data[5];
+
+    // Very simplified - Just returning the z-axis rotation as "angle" for demonstration
+    return gyro_z;
+}
+
+int Gyroscope_getDirection(void)
+{
+    // Assuming positive z-axis rotation means clockwise direction
+    int gyro_z = Gyroscope_getAngle(); // Reuse the simplified angle as a proxy for direction
+    if (gyro_z > 0)
+    {
+        return 1; // Clockwise
+    }
+    else if (gyro_z < 0)
+    {
+        return -1; // Counterclockwise
+    }
+    return 0; // No significant movement
+}
+
+// Example of how you might use these in
