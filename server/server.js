@@ -1,54 +1,37 @@
-// Import necessary modules
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
-const mime = require('mime');
+const dgram = require('dgram');
+const app = express();
+const udpClient = dgram.createSocket('udp4');
 
-// Define the port to listen on
-const PORT = 8088;
+const UDP_PORT = 41234;
+const UDP_HOST = 'localhost';
+const HTTP_PORT = 3000;
 
-// Helper function to send a 404 response
-function sendNotFound(res) {
-  res.writeHead(404, { 'Content-Type': 'text/plain' });
-  res.end('404 Not Found');
-}
+app.use(express.static('public')); // Serve static files
 
-// Helper function to send the requested file
-function sendFileContent(res, filePath, fileData) {
-  // Use mime.lookup for older versions of the mime package
-  const contentType = mime.lookup(path.basename(filePath)) || 'application/octet-stream';
-  res.writeHead(200, { 'Content-Type': contentType });
-  res.end(fileData);
-}
-
-// Function to serve static files
-function serveFile(req, res) {
-  let filePath = 'public' + (req.url === '/' ? '/index.html' : req.url);
-  let absolutePath = path.join(__dirname, filePath);
-
-  fs.exists(absolutePath, exists => {
-    if (!exists) {
-      sendNotFound(res);
-      return;
-    }
-
-    fs.readFile(absolutePath, (err, data) => {
-      if (err) {
-        sendNotFound(res);
-      } else {
-        sendFileContent(res, absolutePath, data);
-      }
+app.get('/gyroscope', (req, res) => {
+    udpClient.send('gyroscope', UDP_PORT, UDP_HOST, (error) => {
+        if (error) res.sendStatus(500);
+        else console.log('Requested gyroscope data');
     });
-  });
-}
 
-// Create and start the HTTP server
-const server = http.createServer(serveFile);
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    udpClient.on('message', (message) => {
+        res.json({data: message.toString()});
+    });
 });
 
-// Placeholder for WebSocket server setup
-const udpServer = require('./lib/udp_server');
-udpServer.listen(server);
+app.get('/ultrasonic', (req, res) => {
+    udpClient.send('ultrasonic', UDP_PORT, UDP_HOST, (error) => {
+        if (error) res.sendStatus(500);
+        else console.log('Requested ultrasonic data');
+    });
 
+    udpClient.on('message', (message) => {
+        res.json({data: message.toString()});
+    });
+});
+
+app.listen(HTTP_PORT, () => {
+    console.log(`HTTP Server running on port ${HTTP_PORT}`);
+});

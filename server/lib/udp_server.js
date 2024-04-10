@@ -1,58 +1,25 @@
-"use strict";
-/*
- * Respond to commands over a websocket to relay UDP commands to a local program
- */
+const dgram = require('dgram');
+const udpServer = dgram.createSocket('udp4');
 
-var socketio = require('socket.io');
-var io;
+const PORT = 41234;
+const HOST = 'localhost';
 
-var dgram = require('dgram');
+udpServer.on('message', (message, remote) => {
+    console.log(`UDP Server received: ${message} from ${remote.address}:${remote.port}`);
 
-exports.listen = function(server) {
-	io = socketio.listen(server);
-	io.set('log level 1');
+    // Simulate fetching data based on request
+    let response;
+    if(message.toString() === 'gyroscope') {
+        response = `Gyroscope Data: ${Math.random().toFixed(2)}`;
+    } else if(message.toString() === 'ultrasonic') {
+        response = `Ultrasonic Sensor Distance: ${Math.random().toFixed(2)} cm`;
+    }
 
-	io.sockets.on('connection', function(socket) {
-		handleCommand(socket);
-	});
-};
+    udpServer.send(response, remote.port, remote.address, (error) => {
+        if (error) console.error(error);
+        console.log('Sent response to ' + remote.address + ':' + remote.port);
+    });
+});
 
-function handleCommand(socket) {
-	// Pased string of comamnd to relay
-	socket.on('fcn', function(data) {
-		console.log('fcn command: ' + data);
-
-		// Info for connecting to the local process via UDP
-		var PORT = 12345;
-		var HOST = '192.168.7.2';
-		var buffer = new Buffer(data);
-
-		var client = dgram.createSocket('udp4');
-		client.send(buffer, 0, buffer.length, PORT, HOST, function(err, bytes) {
-			if (err) 
-				throw err;
-			console.log('UDP message sent to ' + HOST +':'+ PORT);
-		});
-
-		client.on('listening', function () {
-			var address = client.address();
-			console.log('UDP Client: listening on ' + address.address + ":" + address.port);
-		});
-		// Handle an incoming message over the UDP from the local application.
-		client.on('message', function (message, remote) {
-			console.log("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
-
-			var reply = message.toString('utf8')
-			socket.emit('commandReply', reply);
-
-			client.close();
-
-		});
-		client.on("UDP Client: close", function() {
-			console.log("closed");
-		});
-		client.on("UDP Client: error", function(err) {
-			console.log("error: ",err);
-		});
-	});
-};
+udpServer.bind(PORT, HOST);
+console.log(`UDP Server listening on ${HOST}:${PORT}`);
