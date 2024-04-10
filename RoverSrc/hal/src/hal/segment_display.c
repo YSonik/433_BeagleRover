@@ -137,7 +137,7 @@ void SegmentDisplay_stop(void)
     running = false;
 }
 
-void SegmentDisplay_cleanUp(void)
+void SegmentDisplay_cleanup(void)
 {
     assert(isInitialized);
 

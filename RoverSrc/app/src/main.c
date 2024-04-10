@@ -2,37 +2,71 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
-
+#include <string.h>
+#include <signal.h>
 
 #include "utils/time_utils.h"
 #include "hal/dfrobot_pirate.h"
+#include "hal/joystick.h"
 
-int main()
+#include "socket.h"
+#include "shutdown.h"
+#include "server.h"
+#include "client.h"
+#include "handshake.h"
+
+#define IP_LEN 50
+static bool killRequested = false;
+
+static void signalHandler(int signal)
+{
+    printf("Received signal %d\n", signal);
+
+    if (killRequested)
+    {
+        printf("Force killing\n");
+        exit(1);
+    }
+
+    killRequested = true;
+    Shutdown_request();
+}
+
+int main(int argc, char *argv[])
 {
     printf("Rover project compiles correctly\n");
 
-    DFRobotPirate_init();
+    signal(SIGINT, signalHandler);
 
-    DFRobotPirate_SetSpeed(20);
-    DFRobotPirate_MoveForward();
+    bool isServer = true;
 
-    sleepForMs(5000);
+    if (argc > 1)
+    {
+        printf("Argument 1: %s\n", argv[1]);
+        isServer = (strncmp(argv[1], "client", 6) != 0);
+    }
 
-    DFRobotPirate_MoveBackward();
+    printf("Running as %s\n", isServer ? "server" : "client");
 
-    sleepForMs(5000);
+    Shutdown_init();
 
-    DFRobotPirate_TurnLeft();
+    if (isServer)
+    {
+        Server_init();
+        Server_cleanup();
+    }
+    else
+    {
+        char server_ip[IP_LEN];
+        // Client discovers the server.
+        memset(server_ip, '\0', IP_LEN);
+        Handshake_init(server_ip);
 
-    sleepForMs(5000);
+        printf("Server IP address: %s\n", server_ip);
+        Client_init(server_ip, SERVER_PORT);
+        Client_cleanup();
+    }
 
-    DFRobotPirate_TurnRight();
-
-    sleepForMs(5000);
-
-    DFRobotPirate_Stop();
-
-    DFRobotPirate_cleanUp();
-
+    Shutdown_cleanup();
     return 0;
 }

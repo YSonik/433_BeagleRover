@@ -2,7 +2,7 @@
 #define __DISTANCE_SENSOR_H
 
 void DistanceSensor_init(void);
-void DistanceSensor_cleanUp(void);
+void DistanceSensor_cleanup(void);
 
 float DistanceSensor_getDistance(void);
 
