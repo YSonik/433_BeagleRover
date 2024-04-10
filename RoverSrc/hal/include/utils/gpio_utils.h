@@ -3,6 +3,13 @@
 
 #include <stdbool.h>
 
+#define GPIO_PRU_OUT_MODE "pruout"
+#define GPIO_PRU_IN_MODE "pruin"
+
+#define GPIO_PWM_MODE "pwm"
+#define GPIO_GPIO_MODE "gpio"
+#define GPIO_I2C_MODE "i2c"
+
 bool isGpioPinExported(const char *gpio);
 
 void exportGpioPin(const char *gpio);

@@ -143,5 +143,5 @@ void configurePin(const char *pin, const char *mode)
 
 void configurePinGpio(const char *pin)
 {
-    configurePin(pin, "gpio");
+    configurePin(pin, GPIO_GPIO_MODE);
 }
