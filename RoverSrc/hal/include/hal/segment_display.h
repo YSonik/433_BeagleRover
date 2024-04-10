@@ -7,6 +7,6 @@ void SegmentDisplay_write(int value);
 
 void SegmentDisplay_stop(void);
 
-void SegmentDisplay_cleanUp(void);
+void SegmentDisplay_cleanup(void);
 
 #endif // _SEGMENT_DISPLAY_H_

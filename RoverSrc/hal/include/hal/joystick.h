@@ -7,6 +7,7 @@ typedef enum JoystickDirection
     JOYSTICK_DOWN,
     JOYSTICK_LEFT,
     JOYSTICK_RIGHT,
+    JOYSTICK_PRESSED,
     JOYSTICK_NONE
 } direction;
 
@@ -18,10 +19,10 @@ typedef enum edge
 } edge;
 
 void Joystick_init(void);
-void Joystick_cleanUp(void);
+void Joystick_cleanup(void);
 
 direction Joystick_waitForInput(int timeout_ms, edge e);
 direction Joystick_read();
-const char* Joystick_getDirectionString(direction dir);
+const char *Joystick_getDirectionString(direction dir);
 
 #endif
