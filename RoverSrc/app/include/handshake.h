@@ -2,6 +2,6 @@
 #define __HANDSHAKE_H
 #include <stdbool.h>
 
-void Handshake_init(char* ip_buffer, bool isServer);
+void Handshake_init(char* ip_buffer);
 
 #endif
