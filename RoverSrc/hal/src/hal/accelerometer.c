@@ -1,77 +1,133 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-#include <pthread.h>
 #include <stdbool.h>
+#include <assert.h>
+#include <stdio.h>
 
-#include "../../hal/include/hal/helper.h"
+#include "utils/gpio_utils.h"
+#include "utils/i2c_utils.h"
+#include "hal/accelerometer.h"
 
 #define I2CDRV_LINUX_BUS1 "/dev/i2c-1"
+#define ACCELEROMETER_ADDRESS 0x18
 
-#define I2C_DEVICE_ADDRESS 0x18 //0X18   
+#define ACCELEROMETER_REG_WHO_AM_I 0x0F
+#define ACCELEROMETER_REG_CTRL_REG1 0x20
 
-#define CTRL_REG1 0x20  //0X20
+#define ACCELEROMETER_X_AXIS_REG_LSB 0x28
+#define ACCELEROMETER_X_AXIS_REG_MSB 0x29
 
-static bool stopping = false;
+#define ACCELEROMETER_Y_AXIS_REG_LSB 0x2A
+#define ACCELEROMETER_Y_AXIS_REG_MSB 0x2B
 
-static int i2cFileDesc;
+#define ACCELEROMETER_Z_AXIS_REG_LSB 0x2C
+#define ACCELEROMETER_Z_AXIS_REG_MSB 0x2D
 
-char accelValues[7];
-int16_t xAccl;
-int16_t yAccl;
-int16_t zAccl;
+#define ACCELEROMETER_CTRL_REG1_POWER_ON 0x27
 
+#define SDA_PIN "P9_18"
+#define SDA_GPIO_NUMBER "44"
 
-// Initialize the accelerometer
-void Accel_init(void)
+#define SCL_PIN "P9_17"
+#define SCL_GPIO_NUMBER "61"
+
+#define DIGIT_COUNT 2
+
+typedef struct Accelerometer_t
 {
-   runCommand("config-pin P9_18 i2c");
-   runCommand("config-pin P9_17 i2c");
+    char pins[DIGIT_COUNT][6];
+    char gpio_numbers[DIGIT_COUNT][3];
+} Accelerometer_t;
 
+Accelerometer_t accelerometer = {
+    {SDA_PIN, SCL_PIN},
+    {SDA_GPIO_NUMBER, SCL_GPIO_NUMBER},
+};
 
-   //open the bus
-   i2cFileDesc = openI2CBus(I2CDRV_LINUX_BUS1, I2C_DEVICE_ADDRESS);
+static bool is_initialized = false;
+static int i2cFileDesc = 0;
 
-   //set the control register for the accelerometer to ACTIVE
-   writeI2cReg(i2cFileDesc, CTRL_REG1, 0x27);   //0X20
-
+static void Accelerometer_setPowerOn()
+{
+    writeI2cReg(i2cFileDesc, ACCELEROMETER_REG_CTRL_REG1, ACCELEROMETER_CTRL_REG1_POWER_ON);
 }
 
-void Accel_cleanup(void)
+void Accelerometer_init()
 {
-   stopping = true;
-   close(i2cFileDesc);
+    assert(!is_initialized);
+
+    for (int i = 0; i < DIGIT_COUNT; i++)
+    {
+        configurePinI2c(accelerometer.pins[i]);
+
+        exportGpioPin(accelerometer.gpio_numbers[i]);
+    }
+
+    i2cFileDesc = initI2cBus(I2CDRV_LINUX_BUS1, ACCELEROMETER_ADDRESS);
+
+    Accelerometer_setPowerOn();
+
+    is_initialized = true;
 }
 
-void getAccelerometerValues(int16_t *xAccl, int16_t *yAccl)
+void Accelerometer_cleanup()
 {
-    int x = 0X28 + 0X80;
-   // To read a register, must first write the address
-   int res = write(i2cFileDesc, &x, sizeof(x));
-   if (res != sizeof(x)) {
-        printf("Size of regAddr: %zu\n", sizeof(x));
-        perror("I2C: Unable to write to i2c register. error is here");
-        exit(1);
-   }
-   // Now read the value and return it
-   int size = 7;
-   res = read(i2cFileDesc, &accelValues, sizeof(char)*size);
-   if (res != sizeof(accelValues)) {
-       perror("I2C: Unable to read from i2c register");
-       exit(1);
-   }
+    assert(is_initialized);
 
-   *xAccl = (accelValues[0] << 8) | (accelValues[1]) ;
-   //*xAccl = *xAccl >> 4;  
+    for (int i = 0; i < DIGIT_COUNT; i++)
+    {
+        unexportGpioPin(accelerometer.gpio_numbers[i]);
+    }
 
-   *yAccl = (accelValues[2] << 8) | (accelValues[3]) ;
-   //*yAccl = *yAccl >> 4;
+    is_initialized = false;
+}
 
-   zAccl = (accelValues[4] << 8) | (accelValues[5]);
-   zAccl = zAccl >> 4;
-}   
+static int16_t Accelerometer_orderBytes(int lsb, int msb)
+{
+    int16_t x = (msb << 8) | lsb;
+
+    return x >> 4; // 12-bit resolution, so we need to shift 4 bits to the right
+}
+
+static double Accelerometer_readValue(int reg, unsigned char lsb_address, unsigned char msb_address)
+{
+    char lsb = readI2cReg(reg, lsb_address);
+    char msb = readI2cReg(reg, msb_address);
+
+    int16_t x = Accelerometer_orderBytes(lsb, msb);
+
+    return x / 1000.0; // Convert to g
+}
+
+double Accelerometer_getX()
+{
+    assert(is_initialized);
+
+    return Accelerometer_readValue(i2cFileDesc, ACCELEROMETER_X_AXIS_REG_LSB, ACCELEROMETER_X_AXIS_REG_MSB);
+}
+
+double Accelerometer_getY()
+{
+    assert(is_initialized);
+
+    return Accelerometer_readValue(i2cFileDesc, ACCELEROMETER_Y_AXIS_REG_LSB, ACCELEROMETER_Y_AXIS_REG_MSB);
+}
+
+double Accelerometer_getZ()
+{
+    assert(is_initialized);
+
+    return Accelerometer_readValue(i2cFileDesc, ACCELEROMETER_Z_AXIS_REG_LSB, ACCELEROMETER_Z_AXIS_REG_MSB);
+}
+
+void Accelerometer_ReadAll(double *x, double *y, double *z)
+{
+    assert(is_initialized);
+
+    unsigned char data[6];
+
+    readI2cBlockData(i2cFileDesc, ACCELEROMETER_X_AXIS_REG_LSB + 0x80, data, 6 * sizeof(unsigned char));
+
+    *x = Accelerometer_orderBytes(data[0], data[1]) / 1000.0;
+    *y = Accelerometer_orderBytes(data[2], data[3]) / 1000.0;
+    *z = Accelerometer_orderBytes(data[4], data[5]) / 1000.0;
+}

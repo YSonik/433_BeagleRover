@@ -1,9 +1,13 @@
-#ifndef ACCEL_H
-#define ACCEL_H
+#ifndef __ACCELEROMETER_H
+#define __ACCELEROMETER_H
 
-void Accel_init(void);
-void Accel_cleanup(void);
-// void getAccelerometerValues();
-void getAccelerometerValues(int16_t *xAccl, int16_t *yAccl);
+void Accelerometer_init(void);
+void Accelerometer_cleanup(void);
 
-#endif
+double Accelerometer_getX(void);
+double Accelerometer_getY(void);
+double Accelerometer_getZ(void);
+
+void Accelerometer_ReadAll(double *x, double *y, double *z);
+
+#endif // __ACCELEROMETER_H
