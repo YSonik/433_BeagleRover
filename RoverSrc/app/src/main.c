@@ -38,8 +38,6 @@ int main(int argc, char *argv[])
 {
     printf("Rover project compiles correctly\n");
 
-    Gyroscope_init();
-    
     signal(SIGINT, signalHandler);
 
     bool isServer = true;
@@ -56,8 +54,10 @@ int main(int argc, char *argv[])
 
     if (isServer)
     {
+        Gyroscope_init();
         Server_init();
         Server_cleanup();
+        Gyroscope_cleanUp();
     }
     else
     {
@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
         Client_cleanup();
     }
     
-    Gyroscope_cleanUp();
     Shutdown_cleanup();
     return 0;
 }
