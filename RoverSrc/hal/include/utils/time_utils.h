@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 long long getTimeInMs(void);
+long long getTimeInUs(void);
 void sleepForMs(long long delayInMs);
 void sleepForNs(long long delayInNs);
 
