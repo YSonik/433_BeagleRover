@@ -27,7 +27,7 @@ static void *Server_thread()
         char messageRX[MSG_MAX_LEN];
 
         Socket_receive(messageRX);
-
+        printf("Message Received: %s\n",messageRX);
         /**
          * Supported commands
          * speed=[speed]    Set Speed (0 <= Speed <= 100)
@@ -62,6 +62,7 @@ static void *Server_thread()
         }
         else if (strncmp(messageRX, "direction", 9) == 0)
         {
+            
             if (messageRX[9] == '=')
             {
                 switch (messageRX[10])

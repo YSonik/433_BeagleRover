@@ -64,33 +64,26 @@
         <div>
           <!-- Control buttons -->
           <button
+            id="forward_button"
             class="btn btn-primary control-button"
-            onclick="moveCar('forward')"
-          >
-            Forward
-          </button>
+            onClick="drive_rover('forward')"> Forward </button>
+            
         </div>
         <div>
           <button
+            id="left_button"
             class="btn btn-secondary control-button"
-            onclick="moveCar('left')"
-          >
-            Left
-          </button>
+            onClick="drive_rover('left')"> Left </button>
           <button
+            id="right_button"
             class="btn btn-secondary control-button"
-            onclick="moveCar('right')"
-          >
-            Right
-          </button>
+            onClick="drive_rover('right')"> Right </button>
         </div>
         <div>
           <button
+            id="backward_button"
             class="btn btn-primary control-button"
-            onclick="moveCar('backward')"
-          >
-            Backward
-          </button>
+            onClick="drive_rover('backward')"> Backward </button>
         </div>
       </div>
       <div class="row">
@@ -112,6 +105,8 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+   
     <!-- <script>
       // Example JavaScript to update sensor readings. Replace with your actual data fetching and updating logic.
       $(document).ready(function () {
@@ -143,6 +138,6 @@
         // Your existing simulated data fetch and update code for sensors
       });
     </script> -->
-    <script src="javascripts/udp_ui.js"></script>
+    <script src="javascripts/rover_control.js"></script>
   </body>
 </html>
