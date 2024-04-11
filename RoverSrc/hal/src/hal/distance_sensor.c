@@ -32,13 +32,15 @@ static bool is_running = false;
 pthread_t sensorThread;
 
 // Helper function to compare two float values, used in qsort
-int compareFloats(const void* a, const void* b) {
+int compareFloats(const void* a, const void* b) 
+{
     float fa = *(const float*)a;
     float fb = *(const float*)b;
     return (fa < fb) - (fa > fb);
 }
 
-float medianFilter(float newMeasurement) {
+float medianFilter(float newMeasurement) 
+{
     static float measurements[SAMPLE_SIZE];
     static int count = 0;
     int index = count % SAMPLE_SIZE;
@@ -60,7 +62,8 @@ float medianFilter(float newMeasurement) {
     return (sortedMeasurements[SAMPLE_SIZE / 2 - 1] + sortedMeasurements[SAMPLE_SIZE / 2]) / 2.0;
 }
 
-float exponentialMovingAverage(float newMeasurement) {
+float exponentialMovingAverage(float newMeasurement) 
+{
     static float ema = 0.0;
     static bool isInitialized = false;
     const float alpha = 0.5; 
