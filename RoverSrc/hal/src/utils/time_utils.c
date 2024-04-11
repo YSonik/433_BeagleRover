@@ -25,6 +25,17 @@ long long getTimeInMs(void)
     return milliSeconds;
 }
 
+long long getTimeInUs(void)
+{
+    struct timespec spec;
+
+    clock_gettime(CLOCK_REALTIME, &spec);
+    long long seconds = spec.tv_sec * 1000000LL; // Note: LL specifies long long literal
+    long long nanoSeconds = spec.tv_nsec / 1000; // Divide by 1000 to convert nanoseconds to microseconds
+    long long microSeconds = seconds + nanoSeconds;
+    return microSeconds;
+}
+
 void sleepForMs(long long delayInMs)
 {
     const long long NS_PER_MS = 1000 * 1000;
