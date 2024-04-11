@@ -15,7 +15,8 @@ client.setMaxListeners(4)
 let event_list = {"drive_forward":false,
                   "drive_backward":false,
                   "drive_left":false,
-                  "drive_right":false,}
+                  "drive_right":false,
+                  "get_gys_reading": false}
 
 const app_ip = '172.20.10.13' //(Supreet's Hotspot)May Change
 const app_port = 12345
@@ -124,7 +125,24 @@ io.on("connection", (socket)=>{
 
     addListener(socket, "drive_right", drive_right)
 
-});   
+    addListener(socket, "get_gys_reading", (data)=>{
+        client.send("gyro", app_port, app_ip, (err)=>{
+            if(err){
+                console.log("UDP Error\n");
+            }
+            else{
+                client.on('message', (msg, rinfo)=>{
+                    console.log(msg.toString());
+                    io.emit("gyro_updated",{new_gyro:parseInt(msg.toString())});
+                    
+                })
+            }
+        })
+
+    
+
+}) 
+});  
     
     
 

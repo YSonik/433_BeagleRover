@@ -9,6 +9,7 @@
 
 #include "hal/dfrobot_pirate.h"
 #include "hal/joystick.h"
+#include "hal/gyroscope.h"
 
 #include "socket.h"
 #include "shutdown.h"
@@ -37,6 +38,8 @@ int main(int argc, char *argv[])
 {
     printf("Rover project compiles correctly\n");
 
+    Gyroscope_init();
+    
     signal(SIGINT, signalHandler);
 
     bool isServer = true;
@@ -67,7 +70,8 @@ int main(int argc, char *argv[])
         Client_init(server_ip, SERVER_PORT);
         Client_cleanup();
     }
-
+    
+    Gyroscope_cleanUp();
     Shutdown_cleanup();
     return 0;
 }
