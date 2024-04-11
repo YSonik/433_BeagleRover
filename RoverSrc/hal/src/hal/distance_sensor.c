@@ -29,17 +29,19 @@
 static bool is_initialized = false;
 static bool is_running = false;
 
+float filteredDist;
+
 pthread_t sensorThread;
 
 // Helper function to compare two float values, used in qsort
-int compareFloats(const void* a, const void* b) 
+static int compareFloats(const void* a, const void* b) 
 {
     float fa = *(const float*)a;
     float fb = *(const float*)b;
     return (fa < fb) - (fa > fb);
 }
 
-float medianFilter(float newMeasurement) 
+static float medianFilter(float newMeasurement) 
 {
     static float measurements[SAMPLE_SIZE];
     static int count = 0;
@@ -62,7 +64,7 @@ float medianFilter(float newMeasurement)
     return (sortedMeasurements[SAMPLE_SIZE / 2 - 1] + sortedMeasurements[SAMPLE_SIZE / 2]) / 2.0;
 }
 
-float exponentialMovingAverage(float newMeasurement) 
+static float exponentialMovingAverage(float newMeasurement) 
 {
     static float ema = 0.0;
     static bool isInitialized = false;
@@ -83,60 +85,7 @@ float filterDistance(float newMeasurement) {
     return exponentialMovingAverage(medianFiltered);
 }
 
-static void *sensorThreadFunction(void* arg) 
-{
-    (void) arg;
-    float rawDist;
-    float filteredDist;
-
-    while(is_running) {
-        rawDist = DistanceSensor_getDistance();
-
-        if (rawDist == -1) {
-            //printf("Measurement error or out of range\n");
-            continue; // Skip this loop iteration on error
-        }
-
-        filteredDist = filterDistance(rawDist);
-        printf("dist: %f\n", filteredDist);
-        usleep(60000);
-    }
-
-    return NULL;
-}
-
-void DistanceSensor_init() 
-{
-    printf("initializing distance sensor\n");
-    assert(!is_initialized);
-
-    exportGpioPin(ECHO_GPIO);
-    exportGpioPin(TRIGGER_GPIO);
-
-    configurePinGpio(ECHO_PIN);
-    configurePinGpio(TRIGGER_PIN);
-
-    setGpioDirection(ECHO_GPIO, "in");
-    setGpioDirection(TRIGGER_GPIO, "out");
-
-    is_initialized = true;
-    is_running = true;
-
-    pthread_create(&sensorThread, NULL, sensorThreadFunction, NULL);
-
-}
-
-void DistanceSensor_cleanUp() 
-{
-    assert(is_initialized);
-
-    is_initialized = false;
-    is_running = false;
-
-    pthread_join(sensorThread, NULL);
-}
-
-float DistanceSensor_getDistance()
+static float DistanceSensor_getDistance()
 {
     assert(is_initialized);
     setGpioValue(TRIGGER_GPIO, TRIGGER_HIGH);
@@ -176,3 +125,61 @@ float DistanceSensor_getDistance()
 
 
 }
+
+
+static void *sensorThreadFunction(void* arg) 
+{
+    (void) arg;
+    float rawDist;
+
+    while(is_running) {
+        rawDist = DistanceSensor_getDistance();
+
+        if (rawDist == -1) {
+            //printf("Measurement error or out of range\n");
+            continue; // Skip this loop iteration on error
+        }
+
+        filteredDist = filterDistance(rawDist);
+        printf("dist: %f\n", filteredDist);
+        usleep(60000);
+    }
+
+    return NULL;
+}
+
+float getFilteredDistance(void) {
+    return filteredDist;
+}
+
+void DistanceSensor_init() 
+{
+    printf("initializing distance sensor\n");
+    assert(!is_initialized);
+
+    exportGpioPin(ECHO_GPIO);
+    exportGpioPin(TRIGGER_GPIO);
+
+    configurePinGpio(ECHO_PIN);
+    configurePinGpio(TRIGGER_PIN);
+
+    setGpioDirection(ECHO_GPIO, "in");
+    setGpioDirection(TRIGGER_GPIO, "out");
+
+    is_initialized = true;
+    is_running = true;
+
+    pthread_create(&sensorThread, NULL, sensorThreadFunction, NULL);
+
+}
+
+void DistanceSensor_cleanUp() 
+{
+    assert(is_initialized);
+
+    is_initialized = false;
+    is_running = false;
+
+    pthread_join(sensorThread, NULL);
+}
+
