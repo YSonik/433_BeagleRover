@@ -122,8 +122,6 @@ static float DistanceSensor_getDistance()
     }
 
     return distance;
-
-
 }
 
 
@@ -170,7 +168,6 @@ void DistanceSensor_init()
     is_running = true;
 
     pthread_create(&sensorThread, NULL, sensorThreadFunction, NULL);
-
 }
 
 void DistanceSensor_cleanUp() 
