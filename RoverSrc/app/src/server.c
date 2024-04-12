@@ -10,8 +10,10 @@
 
 #include "utils/time_utils.h"
 
-#include "hal/dfrobot_pirate.h"
+#include "hal/accelerometer.h"
+#include "hal/distance_sensor.h"
 #include "hal/gyroscope.h"
+#include "hal/dfrobot_pirate.h"
 
 #include "socket.h"
 #include "shutdown.h"
@@ -57,6 +59,9 @@ static void *Server_thread()
             {
                 char response[MSG_MAX_LEN];
                 sprintf(response, "%d\n", DFRobotPirate_getSpeed());
+
+                printf("Speed Response: %s", response);
+
                 Socket_reply_to_last(response);
             }
         }
@@ -102,27 +107,30 @@ static void *Server_thread()
         {
             char response[MSG_MAX_LEN];
 
-            sprintf(response, "Accel Response\n");
-            // sprintf(response, "%d,%d,%d\n", DFRobotPirate_getAccelX(), DFRobotPirate_getAccelY(), DFRobotPirate_getAccelZ());
+            double xAcc, yAcc, zAcc;
+            Accelerometer_readAll(&xAcc, &yAcc, &zAcc);
+
+            snprintf(response, MSG_MAX_LEN, "%.5f %.5f %.5f\n", xAcc, yAcc, zAcc);
+
             Socket_reply_to_last(response);
         }
         else if (strncmp(messageRX, "gyro", 4) == 0)
         {
             char response[MSG_MAX_LEN];
 
-            sprintf(response, "Gyro Response:");
-            //sprintf(response, "%d,%d,%d\n", DFRobotPirate_getGyroX(), DFRobotPirate_getGyroY(), DFRobotPirate_getGyroZ());
-            int16_t zGy;
+            int16_t zGy = 0;
             Gyroscope_getAngle(&zGy);
-            snprintf(response,10, "%d", zGy);
+            snprintf(response, 10, "%d", zGy);
             Socket_reply_to_last(response);
         }
         else if (strncmp(messageRX, "distance", 8) == 0)
         {
             char response[MSG_MAX_LEN];
 
-            sprintf(response, "Distance Response\n");
-            // sprintf(response, "%d\n", DFRobotPirate_getDistance());
+            double distance = DistanceSensor_getDistance();
+
+            snprintf(response, MSG_MAX_LEN, "%.5f\n", distance);
+
             Socket_reply_to_last(response);
         }
         else if (strncmp(messageRX, "help", 4) == 0)
@@ -135,6 +143,7 @@ static void *Server_thread()
                               "direction        Get Direction (0 = Forward, 1 = Backward, 2 = Left, 3 = Right, 4 = Stop)\n"
                               "accel            get Accelerometer values\n"
                               "gyro             get Gyroscope values\n"
+                              "distance         get distance from ultrasonic sensor\n"
                               "help             get help\n"
                               "ip               get IP address\n"
                               "shutdown         Shutdown the server\n");
@@ -174,6 +183,10 @@ void Server_init()
 
     DFRobotPirate_init();
 
+    Gyroscope_init();
+    DistanceSensor_init();
+    // Accelerometer_init();
+
     pthread_create(&server_thread, NULL, Server_thread, NULL);
 
     is_initialized = true;
@@ -187,7 +200,12 @@ void Server_cleanup()
     }
 
     pthread_join(server_thread, NULL);
+
     DFRobotPirate_cleanup();
+    Gyroscope_cleanUp();
+    DistanceSensor_cleanup();
+    // Accelerometer_cleanup();
+
 
     Socket_close();
 

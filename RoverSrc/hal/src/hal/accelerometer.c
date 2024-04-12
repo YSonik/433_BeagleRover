@@ -119,7 +119,7 @@ double Accelerometer_getZ()
     return Accelerometer_readValue(i2cFileDesc, ACCELEROMETER_Z_AXIS_REG_LSB, ACCELEROMETER_Z_AXIS_REG_MSB);
 }
 
-void Accelerometer_ReadAll(double *x, double *y, double *z)
+void Accelerometer_readAll(double *x, double *y, double *z)
 {
     assert(is_initialized);
 

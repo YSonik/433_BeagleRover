@@ -205,6 +205,8 @@ void DFRobotPirate_setSpeed(int speed)
 
     setPwmDutyCycle(motor_pins[0].pwm_path, (PWM_PERIOD * speed) / 100);
     setPwmDutyCycle(motor_pins[1].pwm_path, (PWM_PERIOD * speed) / 100);
+
+    current_speed = speed;
 }
 
 void DFRobotPirate_stop()

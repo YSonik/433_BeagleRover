@@ -3,7 +3,6 @@
 	"version": "0.0.1",
 	"description": "Relay UDP messages to node.js.",
 	"dependencies": {
-		"express": "^4.19.2",
 		"mime": "~1.2.7",
 		"socket.io": "^4.7.5"
 	}

@@ -3,26 +3,8 @@ const path = require('path');
 var fs = require('fs')
 var http = require('http')
 var mime = require('mime-types')
-var socketIO = require('socket.io')
 
-const dgram = require('dgram');
-const { removeListener } = require('process');
-const client = dgram.createSocket('udp4')
-client.bind(8090, '0.0.0.0', () => {
-    console.log("Node Server is listening to the C App\n");
-})
-client.setMaxListeners(4)
-let event_list = {
-    "drive_forward": false,
-    "drive_backward": false,
-    "drive_left": false,
-    "drive_right": false,
-    "get_gys_reading": false
-}
-
-const app_ip = '127.0.0.1' //(Supreet's Hotspot)May Change
-const app_port = 12345
-
+const SERVER_PORT = 3000
 
 function sendFile(response, filepath, data) {
     response.writeHead(200, {
@@ -45,7 +27,6 @@ function serveStatic(response, filepath) {
 
         })
     }
-
 }
 
 var server = http.createServer((request, response) => {
@@ -60,90 +41,10 @@ var server = http.createServer((request, response) => {
     serveStatic(response, filePath);
 })
 
+server.listen(SERVER_PORT, () => console.log("Server is listening on port: " + SERVER_PORT))
 
-function addListener(socket, event, listener) {
-    console.log(event_list[event])
-    if (event_list[event] == false) {
-        console.log("Added listener\n")
-        socket.on(event, listener);
-        event_list[event] = true;
-    }
-}
-
-function drive_forward(socket) {
-
-    console.log("Drive Forward\n")
-    client.send("direction=0", app_port, app_ip, (err) => {
-        if (err) {
-            console.log("UDP Error\n");
-        }
-    })
-}
-
-function drive_backward(socket) {
-
-    console.log("Drive Backward\n")
-    client.send("direction=1", app_port, app_ip, (err) => {
-        if (err) {
-            console.log("UDP Error\n");
-        }
-    })
-}
-
-function drive_left(socket) {
-
-    console.log("Drive Left\n")
-    client.send("direction=2", app_port, app_ip, (err) => {
-        if (err) {
-            console.log("UDP Error\n");
-        }
-    })
-}
-
-function drive_right(socket) {
-
-    console.log("Drive Right\n")
-    client.send("direction=3", app_port, app_ip, (err) => {
-        if (err) {
-            console.log("UDP Error\n");
-        }
-    })
-}
-
-
-const io = socketIO(server)
-io.on("connection", (socket) => {
-    console.log("Server connected to Frontend\n");
-    //Drive Rover event listeners
-    addListener(socket, "drive_forward", drive_forward)
-
-    addListener(socket, "drive_backward", drive_backward)
-
-    addListener(socket, "drive_left", drive_left)
-
-    addListener(socket, "drive_right", drive_right)
-
-    addListener(socket, "get_gys_reading", (data) => {
-        client.send("gyro", app_port, app_ip, (err) => {
-            if (err) {
-                console.log("UDP Error\n");
-            }
-            else {
-                client.on('message', (msg, rinfo) => {
-                    console.log(msg.toString());
-                    io.emit("gyro_updated", { new_gyro: parseInt(msg.toString()) });
-
-                })
-            }
-        })
-
-
-
-    })
-});
-
-
-
-const server_port = 3000
-const server_ip = '0.0.0.0'
-server.listen(server_port, server_ip, () => { console.log("Server is listening on port: " + server_port) })
+/*
+ * Create the Proc-access server to listen for the websocket
+ */
+var procServer = require('./lib/udp_server');
+procServer.listen(server);

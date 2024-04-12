@@ -8,6 +8,6 @@ double Accelerometer_getX(void);
 double Accelerometer_getY(void);
 double Accelerometer_getZ(void);
 
-void Accelerometer_ReadAll(double *x, double *y, double *z);
+void Accelerometer_readAll(double *x, double *y, double *z);
 
 #endif // __ACCELEROMETER_H

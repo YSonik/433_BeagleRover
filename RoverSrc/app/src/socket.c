@@ -81,6 +81,15 @@ static void Socket_init_local_socket(const char *port)
             continue;
         }
         break;
+
+        // struct timeval tv;
+        // tv.tv_sec = 5;
+        // tv.tv_usec = 0;
+        // if (setsockopt(local_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof tv) == -1)
+        // {
+        //     perror("setsockopt");
+        //     exit(1);
+        // }
     }
 
     freeaddrinfo(res); // free the linked list
@@ -113,7 +122,6 @@ void Socket_send(char *message)
         0,
         remote->ai_addr,
         remote->ai_addrlen);
-
 
     if (bytesSx == -1)
     {

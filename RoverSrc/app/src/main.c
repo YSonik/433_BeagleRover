@@ -5,12 +5,6 @@
 #include <string.h>
 #include <signal.h>
 
-#include "utils/time_utils.h"
-
-#include "hal/dfrobot_pirate.h"
-#include "hal/joystick.h"
-#include "hal/gyroscope.h"
-
 #include "socket.h"
 #include "shutdown.h"
 #include "server.h"
@@ -54,10 +48,8 @@ int main(int argc, char *argv[])
 
     if (isServer)
     {
-        Gyroscope_init();
         Server_init();
         Server_cleanup();
-        Gyroscope_cleanUp();
     }
     else
     {
@@ -70,7 +62,7 @@ int main(int argc, char *argv[])
         Client_init(server_ip, SERVER_PORT);
         Client_cleanup();
     }
-    
+
     Shutdown_cleanup();
     return 0;
 }
