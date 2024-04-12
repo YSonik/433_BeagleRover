@@ -53,5 +53,5 @@ void disablePwm(const char *path)
 
 void configurePinPwm(const char *pin)
 {
-    configurePin(pin, "pwm");
+    configurePin(pin, GPIO_PWM_MODE);
 }

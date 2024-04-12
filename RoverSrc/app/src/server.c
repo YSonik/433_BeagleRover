@@ -11,6 +11,7 @@
 #include "utils/time_utils.h"
 
 #include "hal/dfrobot_pirate.h"
+#include "hal/gyroscope.h"
 
 #include "socket.h"
 #include "shutdown.h"
@@ -27,7 +28,7 @@ static void *Server_thread()
         char messageRX[MSG_MAX_LEN];
 
         Socket_receive(messageRX);
-
+        printf("Message Received: %s\n",messageRX);
         /**
          * Supported commands
          * speed=[speed]    Set Speed (0 <= Speed <= 100)
@@ -62,6 +63,7 @@ static void *Server_thread()
         }
         else if (strncmp(messageRX, "direction", 9) == 0)
         {
+            
             if (messageRX[9] == '=')
             {
                 switch (messageRX[10])
@@ -109,8 +111,11 @@ static void *Server_thread()
         {
             char response[MSG_MAX_LEN];
 
-            sprintf(response, "Gyro Response\n");
-            // sprintf(response, "%d,%d,%d\n", DFRobotPirate_getGyroX(), DFRobotPirate_getGyroY(), DFRobotPirate_getGyroZ());
+            sprintf(response, "Gyro Response:");
+            //sprintf(response, "%d,%d,%d\n", DFRobotPirate_getGyroX(), DFRobotPirate_getGyroY(), DFRobotPirate_getGyroZ());
+            int16_t zGy;
+            Gyroscope_getAngle(&zGy);
+            snprintf(response,10, "%d", zGy);
             Socket_reply_to_last(response);
         }
         else if (strncmp(messageRX, "distance", 8) == 0)

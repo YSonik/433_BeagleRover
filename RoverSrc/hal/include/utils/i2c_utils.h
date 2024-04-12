@@ -9,4 +9,6 @@ void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char value);
 
 unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr);
 
+void readI2cBlockData(int i2cFileDesc, unsigned char regAddr, unsigned char *data, int length);
+
 #endif // _I2C_UTILS_H_

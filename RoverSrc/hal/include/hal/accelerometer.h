@@ -4,8 +4,10 @@
 void Accelerometer_init(void);
 void Accelerometer_cleanup(void);
 
-int Accelerometer_getX(void);
-int Accelerometer_getY(void);
-int Accelerometer_getZ(void);
+double Accelerometer_getX(void);
+double Accelerometer_getY(void);
+double Accelerometer_getZ(void);
+
+void Accelerometer_ReadAll(double *x, double *y, double *z);
 
 #endif // __ACCELEROMETER_H

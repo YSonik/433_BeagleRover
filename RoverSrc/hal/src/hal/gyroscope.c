@@ -50,7 +50,7 @@ void Gyroscope_cleanUp(void)
     }
 }
 
-int Gyroscope_getAngle(void)
+int Gyroscope_getAngle(int16_t *zGy)
 {
     // Simplified version of getting gyro data and calculating angle
     char reg[1] = {GYRO_XOUT_H};
@@ -61,18 +61,21 @@ int Gyroscope_getAngle(void)
         return 0;
     }
 
-    int16_t gyro_x = (data[0] << 8) | data[1];
-    int16_t gyro_y = (data[2] << 8) | data[3];
-    int16_t gyro_z = (data[4] << 8) | data[5];
+     int16_t gyro_x = (data[0] << 8) | data[1];
+    // int16_t gyro_y = (data[2] << 8) | data[3];
+    //int16_t gyro_z = (data[4] << 8) | data[5];
+
+    *zGy = gyro_x;
 
     // Very simplified - Just returning the z-axis rotation as "angle" for demonstration
-    return gyro_z;
+    return gyro_x;
 }
 
 int Gyroscope_getDirection(void)
 {
+    int16_t dummy_zGy;  // Placeholder for the angle value
     // Assuming positive z-axis rotation means clockwise direction
-    int gyro_z = Gyroscope_getAngle(); // Reuse the simplified angle as a proxy for direction
+    int gyro_z = Gyroscope_getAngle(&dummy_zGy); // Reuse the simplified angle as a proxy for direction
     if (gyro_z > 0)
     {
         return 1; // Clockwise
@@ -84,4 +87,3 @@ int Gyroscope_getDirection(void)
     return 0; // No significant movement
 }
 
-// Example of how you might use these in

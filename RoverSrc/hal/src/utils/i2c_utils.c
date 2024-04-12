@@ -62,7 +62,26 @@ unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr)
     return value;
 }
 
+void readI2cBlockData(int i2cFileDesc, unsigned char regAddr, unsigned char *data, int length)
+{
+    // To read a register, must first write the address
+    int res = write(i2cFileDesc, &regAddr, sizeof(regAddr));
+    if (res != sizeof(regAddr))
+    {
+        perror("Unable to write i2c register.");
+        exit(-1);
+    }
+
+    // Now read the value and return it
+    res = read(i2cFileDesc, data, length);
+    if (res != length)
+    {
+        perror("Unable to read i2c register");
+        exit(-1);
+    }
+}
+
 void configurePinI2c(const char *pin)
 {
-    configurePin(pin, "i2c");
+    configurePin(pin, GPIO_I2C_MODE);
 }
