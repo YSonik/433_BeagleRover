@@ -3,6 +3,8 @@
 
 void DistanceSensor_init(void);
 void DistanceSensor_cleanup(void);
-float getFilteredDistance(void);
+
+float DistanceSensor_getRawDistance(void);
+float DistanceSensor_getDistance(void);
 
 #endif // __DISTANCE_SENSOR_H

@@ -15,6 +15,7 @@
 #include "hal/gyroscope.h"
 #include "hal/dfrobot_pirate.h"
 
+#include "autodrive.h"
 #include "socket.h"
 #include "shutdown.h"
 
@@ -65,8 +66,20 @@ static void *Server_thread()
                 Socket_reply_to_last(response);
             }
         }
+        else if (strncmp(messageRX, "autodrive", 9) == 0)
+        {
+            AutoDrive_start();
+        }
+        else if (strncmp(messageRX, "manualdrive", 11) == 0)
+        {
+            AutoDrive_stop();
+        }
         else if (strncmp(messageRX, "direction", 9) == 0)
         {
+            if (AutoDrive_isRunning())
+            {
+                AutoDrive_stop();
+            }
 
             if (messageRX[9] == '=')
             {
@@ -93,10 +106,12 @@ static void *Server_thread()
                     break;
 
                 case '4':
+                    printf("Received message: %s\n", messageRX);
+                    AutoDrive_start();
+                    break;
                 case '5':
                     DFRobotPirate_stop();
                     break;
-
                 default:
                     printf("Unknown direction: %c\n", messageRX[10]);
                     break;
@@ -137,6 +152,8 @@ static void *Server_thread()
         {
             char response[MSG_MAX_LEN];
             sprintf(response, "Supported commands:\n"
+                              "autodrive        Start AutoDrive\n"
+                              "manualdrive      Stop AutoDrive\n"
                               "speed=[speed]    Set Speed (0 <= Speed <= 100)\n"
                               "speed            Get Speed\n"
                               "direction=0      Set Direction\n"
@@ -185,6 +202,7 @@ void Server_init()
 
     Gyroscope_init();
     DistanceSensor_init();
+    AutoDrive_init();
     // Accelerometer_init();
 
     pthread_create(&server_thread, NULL, Server_thread, NULL);
@@ -204,8 +222,8 @@ void Server_cleanup()
     DFRobotPirate_cleanup();
     Gyroscope_cleanUp();
     DistanceSensor_cleanup();
+    AutoDrive_cleanup();
     // Accelerometer_cleanup();
-
 
     Socket_close();
 

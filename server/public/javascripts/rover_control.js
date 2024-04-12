@@ -46,6 +46,12 @@ const change_speed = () => {
     set_speed(speed);
 }
 
+const autodrive = () => {
+    socket.emit("start_autodrive", () => {
+        console.log("Autodrive Event Emitted");
+    });
+}
+
 function updateFields() {
     //Get ultrasonic distance reading
     socket.emit("get_uls_reading", (result) => {

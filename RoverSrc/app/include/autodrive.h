@@ -6,6 +6,7 @@ void AutoDrive_init();
 void AutoDrive_start();
 void AutoDrive_stop();
 
+bool AutoDrive_isRunning();
 void AutoDrive_cleanup();
 
 #endif

@@ -12,14 +12,11 @@
 
 #include "hal/distance_sensor.h"
 
-#define ECHO_GPIO_PATH "/sys/class/gpio/gpio48"
-#define TRIGGER_GPIO_PATH "/sys/class/gpio/gpio49"
+#define ECHO_PIN "p8.10"
+#define ECHO_GPIO "68"
 
-#define ECHO_PIN "p8.7"
-#define ECHO_GPIO "66"
-
-#define TRIGGER_PIN "p8.9"
-#define TRIGGER_GPIO "69"
+#define TRIGGER_PIN "p8.15"
+#define TRIGGER_GPIO "47"
 
 #define TRIGGER_HIGH "1"
 #define TRIGGER_LOW "0"
@@ -29,7 +26,7 @@
 static bool is_initialized = false;
 static bool is_running = false;
 
-float filteredDist;
+float distance = 0.0;
 
 pthread_t sensorThread;
 
@@ -80,12 +77,12 @@ static float exponentialMovingAverage(float newMeasurement)
     return ema;
 }
 
-float filterDistance(float newMeasurement) {
+static float filterDistance(float newMeasurement) {
     float medianFiltered = medianFilter(newMeasurement);
     return exponentialMovingAverage(medianFiltered);
 }
 
-static float DistanceSensor_getDistance()
+float DistanceSensor_getRawDistance()
 {
     assert(is_initialized);
     setGpioValue(TRIGGER_GPIO, TRIGGER_HIGH);
@@ -95,12 +92,12 @@ static float DistanceSensor_getDistance()
 
     long long timeout = 25000;
     long long startWaitTime = getTimeInUs();
-    long long startTime, endTime = 0;
+    long long startTime = 0, endTime = 0;
 
     while (getGpioValue(ECHO_GPIO) == 0) {
         startTime = getTimeInUs();
         if((startTime - startWaitTime) > timeout) {
-            //printf("Echo pulse start wait timeout\n");
+            printf("Echo pulse start wait timeout\n");
             return -1;
         }
     }
@@ -108,7 +105,7 @@ static float DistanceSensor_getDistance()
     while(getGpioValue(ECHO_GPIO) == 1) {
         endTime = getTimeInUs();
         if ((endTime - startWaitTime) > timeout) {
-            //printf("Echo pulse end wait timeout\n");
+            printf("Echo pulse end wait timeout\n");
             return -1; // Indicate a timeout error
         }
     }
@@ -131,28 +128,26 @@ static void *sensorThreadFunction(void* arg)
     float rawDist;
 
     while(is_running) {
-        rawDist = DistanceSensor_getDistance();
+        rawDist = DistanceSensor_getRawDistance();
 
         if (rawDist == -1) {
             //printf("Measurement error or out of range\n");
             continue; // Skip this loop iteration on error
         }
 
-        filteredDist = filterDistance(rawDist);
-        printf("dist: %f\n", filteredDist);
+        distance = rawDist;
         usleep(60000);
     }
 
     return NULL;
 }
 
-float getFilteredDistance(void) {
-    return filteredDist;
+float DistanceSensor_getDistance(void) {
+    return filterDistance(distance);
 }
 
 void DistanceSensor_init()
 {
-    printf("initializing distance sensor\n");
     assert(!is_initialized);
 
     exportGpioPin(ECHO_GPIO);
@@ -170,7 +165,7 @@ void DistanceSensor_init()
     pthread_create(&sensorThread, NULL, sensorThreadFunction, NULL);
 }
 
-void DistanceSensor_cleanUp()
+void DistanceSensor_cleanup()
 {
     assert(is_initialized);
 

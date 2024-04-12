@@ -143,6 +143,30 @@ exports.listen = (server) => {
         })
     }
 
+    const start_autodrive = async (callback) => {
+        const client = dgram.createSocket('udp4');
+        client.send("autodrive", PORT, HOST, (err) => {
+            if (err) {
+                console.log("UDP Error\n");
+            }
+            else {
+                callback();
+            }
+        })
+    }
+
+    const stop_autodrive = async (callback) => {
+        const client = dgram.createSocket('udp4');
+        client.send("manualdrive", PORT, HOST, (err) => {
+            if (err) {
+                console.log("UDP Error\n");
+            }
+            else {
+                callback();
+            }
+        })
+    }
+
     io.on('connection', (socket) => {
         console.log("Server connected to Frontend\n");
 
@@ -169,5 +193,8 @@ exports.listen = (server) => {
 
         socket.on("get_speed", read_speed);
         socket.on("set_speed", set_speed);
+
+        socket.on("start_autodrive", start_autodrive);
+        socket.on("stop_autodrive", stop_autodrive);
     });
 };

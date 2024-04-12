@@ -94,3 +94,8 @@ void AutoDrive_cleanup()
 
     pthread_join(auto_drive_thread, NULL);
 }
+
+bool AutoDrive_isRunning()
+{
+    return is_running;
+}
