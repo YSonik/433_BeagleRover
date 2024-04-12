@@ -24,7 +24,7 @@
 #define TRIGGER_HIGH "1"
 #define TRIGGER_LOW "0"
 
-#define SAMPLE_SIZE 7 
+#define SAMPLE_SIZE 7
 
 static bool is_initialized = false;
 static bool is_running = false;
@@ -34,14 +34,14 @@ float filteredDist;
 pthread_t sensorThread;
 
 // Helper function to compare two float values, used in qsort
-static int compareFloats(const void* a, const void* b) 
+static int compareFloats(const void* a, const void* b)
 {
     float fa = *(const float*)a;
     float fb = *(const float*)b;
     return (fa < fb) - (fa > fb);
 }
 
-static float medianFilter(float newMeasurement) 
+static float medianFilter(float newMeasurement)
 {
     static float measurements[SAMPLE_SIZE];
     static int count = 0;
@@ -64,11 +64,11 @@ static float medianFilter(float newMeasurement)
     return (sortedMeasurements[SAMPLE_SIZE / 2 - 1] + sortedMeasurements[SAMPLE_SIZE / 2]) / 2.0;
 }
 
-static float exponentialMovingAverage(float newMeasurement) 
+static float exponentialMovingAverage(float newMeasurement)
 {
     static float ema = 0.0;
     static bool isInitialized = false;
-    const float alpha = 0.5; 
+    const float alpha = 0.5;
 
     if (!isInitialized) {
         ema = newMeasurement;
@@ -125,7 +125,7 @@ static float DistanceSensor_getDistance()
 }
 
 
-static void *sensorThreadFunction(void* arg) 
+static void *sensorThreadFunction(void* arg)
 {
     (void) arg;
     float rawDist;
@@ -150,7 +150,7 @@ float getFilteredDistance(void) {
     return filteredDist;
 }
 
-void DistanceSensor_init() 
+void DistanceSensor_init()
 {
     printf("initializing distance sensor\n");
     assert(!is_initialized);
@@ -170,7 +170,7 @@ void DistanceSensor_init()
     pthread_create(&sensorThread, NULL, sensorThreadFunction, NULL);
 }
 
-void DistanceSensor_cleanUp() 
+void DistanceSensor_cleanUp()
 {
     assert(is_initialized);
 
@@ -179,3 +179,4 @@ void DistanceSensor_cleanUp()
 
     pthread_join(sensorThread, NULL);
 }
+
