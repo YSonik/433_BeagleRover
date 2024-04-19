@@ -97,7 +97,7 @@ float DistanceSensor_getRawDistance()
     while (getGpioValue(ECHO_GPIO) == 0) {
         startTime = getTimeInUs();
         if((startTime - startWaitTime) > timeout) {
-            printf("Echo pulse start wait timeout\n");
+            // printf("Echo pulse start wait timeout\n");
             return -1;
         }
     }
@@ -105,7 +105,7 @@ float DistanceSensor_getRawDistance()
     while(getGpioValue(ECHO_GPIO) == 1) {
         endTime = getTimeInUs();
         if ((endTime - startWaitTime) > timeout) {
-            printf("Echo pulse end wait timeout\n");
+            // printf("Echo pulse end wait timeout\n");
             return -1; // Indicate a timeout error
         }
     }
