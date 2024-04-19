@@ -22,12 +22,20 @@ static bool is_initialized = false;
 static pthread_t client_thread = 0;
 
 static int current_speed = 0;
+static direction prevDirection = -1;
 
 static void *Client_thread()
 {
     while (!Shutdown_isRequested())
     {
         direction direction = Joystick_read();
+
+        if (direction == prevDirection)
+        {
+            continue;
+        }
+
+        prevDirection = direction;
 
         char directionStr[13];
         sprintf(directionStr, "direction=%d\n", direction);
